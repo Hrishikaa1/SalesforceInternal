@@ -1,0 +1,38 @@
+<template>
+    <lightning-card title="Lead Datatable">
+        <div slot="actions">
+            <lightning-button 
+                label="Add Row" 
+                onclick={handleAddRow} 
+                variant="brand"
+                icon-name="utility:add">
+            </lightning-button>
+        </div>
+        
+        <template if:true={Leads}>
+            <lightning-datatable
+                key-field="Id"
+                data={Leads}
+                columns={columns}
+                draft-values={draftValues}
+                onsave={handleSave}
+                hide-checkbox-column>
+            </lightning-datatable>
+        </template>
+        
+        <template if:true={error}>
+            <p class="slds-text-color_error slds-p-around_small">{error}</p>
+        </template>
+
+        <div slot="footer" class="slds-clearfix">
+            <div class="slds-float_right slds-p-around_small">
+                <lightning-button 
+                    label="Save Records" 
+                    onclick={handleSaveAll} 
+                    variant="success"
+                    disabled={isSaveDisabled}>
+                </lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+</template>
