@@ -1,0 +1,170 @@
+<template>
+    <lightning-card title={pageTitle} icon-name={cardIconName}>
+        <div class="slds-p-around_medium">
+            
+            <template if:true={showSuccess}>
+                <div class="slds-m-bottom_medium">
+                    <div class="slds-notify slds-notify_alert slds-alert_success" role="alert">
+                        <span class="slds-assistive-text">Success</span>
+                        <span class="slds-icon_container slds-icon-utility-success slds-m-right_x-small">
+                            <lightning-icon icon-name="utility:success" alternative-text="Success" size="x-small" variant="inverse"></lightning-icon>
+                        </span>
+                        <template if:true={isUpdateMode}>
+                            <h2>Opportunity updated successfully!</h2>
+                        </template>
+                        <template if:false={isUpdateMode}>
+                            <h2>Opportunity created successfully! ID: {createdOpportunityId}</h2>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={errorMessage}>
+                <div class="slds-m-bottom_medium">
+                    <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                        <span class="slds-assistive-text">Error</span>
+                        <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small">
+                            <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small" variant="inverse"></lightning-icon>
+                        </span>
+                        <h2>{errorMessage}</h2>
+                    </div>
+                </div>
+            </template>
+
+            <form onsubmit={handleSubmit}>
+                <div class="slds-grid slds-wrap slds-gutters">
+                    
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            label="Opportunity Name"
+                            name="opportunityName"
+                            value={opportunityName}
+                            onchange={handleInputChange}
+                            required>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            label="Account Name"
+                            name="accountName"
+                            value={accountName}
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            type="number"
+                            label="Amount"
+                            name="amount"
+                            value={amount}
+                            formatter="currency"
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            type="date"
+                            label="Close Date"
+                            name="closeDate"
+                            value={closeDate}
+                            onchange={handleInputChange}
+                            required>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-combobox
+                            label="Stage"
+                            name="stageName"
+                            value={stageName}
+                            placeholder="Select Stage"
+                            options={stageOptions}
+                            onchange={handleInputChange}
+                            required>
+                        </lightning-combobox>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            type="number"
+                            label="Probability (%)"
+                            name="probability"
+                            value={probability}
+                            min="0"
+                            max="100"
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-combobox
+                            label="Type"
+                            name="oppType"
+                            value={oppType}
+                            placeholder="Select Type"
+                            options={typeOptions}
+                            onchange={handleInputChange}>
+                        </lightning-combobox>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-combobox
+                            label="Lead Source"
+                            name="leadSource"
+                            value={leadSource}
+                            placeholder="Select Lead Source"
+                            options={leadSourceOptions}
+                            onchange={handleInputChange}>
+                        </lightning-combobox>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1">
+                        <lightning-input
+                            label="Next Step"
+                            name="nextStep"
+                            value={nextStep}
+                            onchange={handleInputChange}>
+                        </lightning-input>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1">
+                        <lightning-textarea
+                            label="Description"
+                            name="description"
+                            value={description}
+                            onchange={handleInputChange}>
+                        </lightning-textarea>
+                    </div>
+
+                </div>
+
+                <div class="slds-m-top_medium">
+                    <lightning-button
+                        variant="neutral"
+                        label="Cancel"
+                        onclick={handleCancel}
+                        class="slds-m-right_small">
+                    </lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        type="submit"
+                        label={buttonLabel}
+                        data-id="submit-button">
+                    </lightning-button>
+                </div>
+
+            </form>
+
+            <template if:true={isLoading}>
+                <lightning-spinner
+                    alternative-text="Processing..."
+                    size="medium">
+                </lightning-spinner>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

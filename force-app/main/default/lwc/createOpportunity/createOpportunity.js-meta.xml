@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Create Opportunity</masterLabel>
+    <description>Component to create and update Opportunity records</description>
+    
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__AppPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__RecordAction</target>
+        <target>lightning__FlowScreen</target>
+        <target>lightning__Tab</target>
+    </targets>
+    
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="showTitle" type="Boolean" default="true" label="Show Title"/>
+            <property name="customTitle" type="String" default="Create Opportunity" label="Custom Title"/>
+            <property name="cardIconName" type="String" default="standard:opportunity" label="Card Icon"/>
+            <property name="redirectAfterCreate" type="Boolean" default="false" label="Redirect After Create"/>
+            <property name="resetFormAfterCreate" type="Boolean" default="false" label="Reset Form After Create"/>
+            <property name="opportunityIdToUpdate" type="String" label="Opportunity Id to Update"/>
+        </targetConfig>
+        
+        <targetConfig targets="lightning__RecordPage,lightning__HomePage,lightning__AppPage">
+            <property name="showTitle" type="Boolean" default="true" label="Show Title"/>
+            <property name="customTitle" type="String" default="Create Opportunity" label="Custom Title"/>
+            <property name="cardIconName" type="String" default="standard:opportunity" label="Card Icon"/>
+            <property name="redirectAfterCreate" type="Boolean" default="false" label="Redirect After Create"/>
+            <property name="resetFormAfterCreate" type="Boolean" default="false" label="Reset Form After Create"/>
+            <property name="opportunityIdToUpdate" type="String" label="Opportunity Id to Update"/>
+        </targetConfig>
+        
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>ScreenAction</actionType>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

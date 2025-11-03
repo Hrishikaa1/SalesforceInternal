@@ -1,0 +1,97 @@
+lightning-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.slds-p-around_medium {
+    position: relative;
+}
+
+.slds-grid.slds-wrap {
+    margin-bottom: 0.5rem;
+}
+
+.slds-col {
+    margin-bottom: 1rem;
+}
+
+.slds-alert_success {
+    background-color: #04844b;
+    border-radius: 0.25rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.slds-alert_success h2 {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.slds-alert_error {
+    background-color: #c23934;
+    border-radius: 0.25rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.slds-alert_error h2 {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.slds-m-top_medium {
+    border-top: 1px solid #e5e5e5;
+    padding-top: 1rem;
+    text-align: right;
+}
+
+lightning-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+@media (max-width: 768px) {
+    .slds-col {
+        padding: 0 0.5rem;
+    }
+    
+    .slds-m-top_medium {
+        text-align: center;
+    }
+    
+    lightning-button {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+lightning-input:focus-within,
+lightning-combobox:focus-within,
+lightning-textarea:focus-within {
+    outline: 2px solid #1589ee;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
+
+lightning-button:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease;
+}
+
+lightning-button:active {
+    transform: translateY(0);
+}

@@ -1,0 +1,133 @@
+/* Lead Creation Component Styles */
+
+/* Card styling */
+lightning-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form container */
+.slds-p-around_medium {
+    position: relative;
+}
+
+/* Grid layout improvements */
+.slds-grid.slds-wrap {
+    margin-bottom: 0.5rem;
+}
+
+/* Input field spacing */
+.slds-col {
+    margin-bottom: 1rem;
+}
+
+/* Success message styling */
+.slds-alert_success {
+    background-color: #04844b;
+    border-radius: 0.25rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.slds-alert_success h2 {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Error message styling */
+.slds-alert_error {
+    background-color: #c23934;
+    border-radius: 0.25rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+.slds-alert_error h2 {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Button container */
+.slds-m-top_medium {
+    border-top: 1px solid #e5e5e5;
+    padding-top: 1rem;
+    text-align: right;
+}
+
+/* Loading spinner overlay */
+lightning-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    .slds-col {
+        padding: 0 0.5rem;
+    }
+    
+    .slds-m-top_medium {
+        text-align: center;
+    }
+    
+    lightning-button {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animation for success/error messages */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Focus state improvements for accessibility */
+lightning-input-field:focus-within {
+    outline: 2px solid #1589ee;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+}
+
+/* Required field indicator enhancement */
+lightning-input-field[required]::before {
+    content: '';
+    display: inline-block;
+}
+
+/* Custom styling for the card header */
+lightning-card::part(title) {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Button hover effects */
+lightning-button:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease;
+}
+
+lightning-button:active {
+    transform: translateY(0);
+}
+
+/* Field label styling */
+lightning-input-field::part(label) {
+    font-weight: 600;
+    color: #3e3e3c;
+}
+
+/* Help text styling */
+lightning-input-field::part(help-text) {
+    font-size: 0.75rem;
+    color: #706e6b;
+}

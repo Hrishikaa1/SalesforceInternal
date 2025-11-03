@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Create Lead</masterLabel>
+    <description>Component to create new Lead records. Can be used in Lightning pages, Communities, and Experience Cloud.</description>
+    
+    <!-- Define where this component can be used -->
+    <targets>
+        <!-- Lightning App Builder - Record Pages -->
+        <target>lightning__RecordPage</target>
+        
+        <!-- Lightning App Builder - Home Pages -->
+        <target>lightning__HomePage</target>
+        
+        <!-- Lightning App Builder - App Pages -->
+        <target>lightning__AppPage</target>
+        
+        <!-- Community/Experience Cloud Pages -->
+        <target>lightningCommunity__Page</target>
+        
+        <!-- Community/Experience Cloud Default Page -->
+        <target>lightningCommunity__Default</target>
+        
+        <!-- Quick Action -->
+        <target>lightning__RecordAction</target>
+        
+        <!-- Lightning Flow -->
+        <target>lightning__FlowScreen</target>
+        
+        <!-- Lightning Tab -->
+        <target>lightning__Tab</target>
+    </targets>
+    
+    <!-- Target Configurations -->
+    <targetConfigs>
+        
+        <!-- Configuration for Community/Experience Cloud Pages -->
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="showTitle" type="Boolean" default="true" label="Show Title" description="Show or hide the card title"/>
+            <property name="customTitle" type="String" default="Create New Lead" label="Custom Title" description="Custom title for the component"/>
+            <property name="cardIconName" type="String" default="standard:lead" label="Card Icon" description="Icon to display in the card header"/>
+            <property name="redirectAfterCreate" type="Boolean" default="false" label="Redirect After Create" description="Redirect to the Lead record page after creation"/>
+            <property name="resetFormAfterCreate" type="Boolean" default="false" label="Reset Form After Create" description="Reset the form after successful creation"/>
+            <property name="leadIdToUpdate" type="String" label="Lead Id To Update" description="If provided, loads the Lead and updates it instead of creating a new one"/>
+        </targetConfig>
+        
+        <!-- Configuration for Lightning App Builder -->
+        <targetConfig targets="lightning__RecordPage,lightning__HomePage,lightning__AppPage">
+            <property name="showTitle" type="Boolean" default="true" label="Show Title" description="Show or hide the card title"/>
+            <property name="customTitle" type="String" default="Create New Lead" label="Custom Title" description="Custom title for the component"/>
+            <property name="cardIconName" type="String" default="standard:lead" label="Card Icon" description="Icon to display in the card header"/>
+            <property name="redirectAfterCreate" type="Boolean" default="false" label="Redirect After Create" description="Redirect to the Lead record page after creation"/>
+            <property name="resetFormAfterCreate" type="Boolean" default="false" label="Reset Form After Create" description="Reset the form after successful creation"/>
+            <property name="leadIdToUpdate" type="String" label="Lead Id To Update" description="If provided, loads the Lead and updates it instead of creating a new one"/>
+        </targetConfig>
+        
+        <!-- Configuration for Record Actions (Quick Actions) -->
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>ScreenAction</actionType>
+        </targetConfig>
+        
+    </targetConfigs>
+    
+</LightningComponentBundle>
