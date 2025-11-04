@@ -1,0 +1,32 @@
+<template>
+    <template if:true={recordId}>
+        <lightning-modal-header label="Edit Lead"></lightning-modal-header>
+    </template>
+    <template if:false={recordId}>
+        <lightning-modal-header label="Create Lead"></lightning-modal-header>
+    </template>
+
+    <lightning-modal-body>
+        <div class="slds-grid slds-wrap slds-gutters">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input label="Last Name" name="LastName" value={leadRecord.LastName} onchange={handleChange} required></lightning-input>
+                <lightning-input label="Company" name="Company" value={leadRecord.Company} onchange={handleChange} required></lightning-input>
+                <lightning-input label="Email" name="Email" value={leadRecord.Email} onchange={handleChange}></lightning-input>
+                <lightning-input label="Phone" name="Phone" value={leadRecord.Phone} onchange={handleChange}></lightning-input>
+                <lightning-combobox label="Status" name="Status" value={leadRecord.Status} options={statusOptions} onchange={handleChange}></lightning-combobox>
+            </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input label="Title" name="Title" value={leadRecord.Title} onchange={handleChange}></lightning-input>
+                <lightning-input label="Geography" name="Geography__c" value={leadRecord.Geography__c} onchange={handleChange}></lightning-input>
+                <lightning-input label="Direct/Indirect" name="Direct_Indirect__c" value={leadRecord.Direct_Indirect__c} onchange={handleChange}></lightning-input>
+                <lightning-input label="Business Type" name="Business_Type__c" value={leadRecord.Business_Type__c} onchange={handleChange}></lightning-input>
+                <lightning-input label="Contact Type" name="Contact_type__c" value={leadRecord.Contact_type__c} onchange={handleChange}></lightning-input>
+            </div>
+        </div>
+    </lightning-modal-body>
+
+    <lightning-modal-footer>
+        <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+        <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+    </lightning-modal-footer>
+</template>

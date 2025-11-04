@@ -1,60 +1,89 @@
-/* Lead Creation Component Styles */
+/* ===============================================
+   Create/Edit Lead Modal — Polished UI Styling
+   Author: Hrishika
+   Date: 3-Nov-2025
+   =============================================== */
 
-/* Card styling */
+/* ===== Base Card Container ===== */
 lightning-card {
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    background-color: #ffffff;
 }
 
-/* Form container */
-.slds-p-around_medium {
-    position: relative;
+/* ===== Modal Body ===== */
+lightning-modal-body {
+    padding: 1.5rem;
+    background-color: #fafaf9;
+    border-top: 1px solid #f3f2f2;
+    border-bottom: 1px solid #f3f2f2;
+    max-height: 75vh;
+    overflow-y: auto;
 }
 
-/* Grid layout improvements */
+/* ===== Section Headers ===== */
+.slds-text-heading_small {
+    color: #080707;
+    font-weight: 600;
+    border-bottom: 2px solid #0176d3;
+    padding-bottom: 0.5rem;
+}
+
+/* ===== Grid & Layout ===== */
 .slds-grid.slds-wrap {
-    margin-bottom: 0.5rem;
+    margin: 0 -0.75rem;
 }
 
-/* Input field spacing */
 .slds-col {
-    margin-bottom: 1rem;
+    padding: 0 0.75rem;
+    margin-bottom: 1.25rem;
 }
 
-/* Success message styling */
-.slds-alert_success {
-    background-color: #04844b;
-    border-radius: 0.25rem;
-    animation: slideDown 0.3s ease-out;
+/* ===== Input Field Styling ===== */
+lightning-input,
+lightning-combobox {
+    --slds-c-input-color-border: #d8dde6;
+    --slds-c-input-radius-border: 0.4rem;
+    --slds-c-input-color-background: #fff;
+    --slds-c-input-shadow-focus: 0 0 0 2px #0176d3 inset;
 }
 
-.slds-alert_success h2 {
-    color: white;
-    font-size: 0.9rem;
+lightning-input:focus-within,
+lightning-combobox:focus-within {
+    transform: scale(1.01);
+    transition: all 0.2s ease-in-out;
+}
+
+/* ===== Label Styling ===== */
+lightning-input::part(label),
+lightning-combobox::part(label) {
     font-weight: 600;
+    font-size: 0.85rem;
+    color: #3e3e3c;
 }
 
-/* Error message styling */
-.slds-alert_error {
-    background-color: #c23934;
-    border-radius: 0.25rem;
-    animation: slideDown 0.3s ease-out;
-}
-
-.slds-alert_error h2 {
-    color: white;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-/* Button container */
-.slds-m-top_medium {
+/* ===== Footer Buttons ===== */
+lightning-modal-footer {
     border-top: 1px solid #e5e5e5;
-    padding-top: 1rem;
+    padding: 1rem 1.5rem;
+    background-color: #ffffff;
     text-align: right;
 }
 
-/* Loading spinner overlay */
+lightning-button {
+    margin-left: 0.75rem;
+    transition: all 0.2s ease-in-out;
+}
+
+lightning-button:hover {
+    transform: translateY(-1px);
+}
+
+lightning-button:active {
+    transform: translateY(0);
+}
+
+/* ===== Spinner ===== */
 lightning-spinner {
     position: absolute;
     top: 50%;
@@ -63,71 +92,23 @@ lightning-spinner {
     z-index: 9999;
 }
 
-/* Responsive adjustments for mobile */
+/* ===== Mobile Responsiveness ===== */
 @media (max-width: 768px) {
+    lightning-modal-body {
+        padding: 1rem;
+    }
+
     .slds-col {
+        margin-bottom: 1rem;
         padding: 0 0.5rem;
     }
-    
-    .slds-m-top_medium {
+
+    lightning-modal-footer {
         text-align: center;
     }
-    
+
     lightning-button {
-        width: 100%;
-        margin-bottom: 0.5rem;
+        width: 48%;
+        margin: 0.25rem;
     }
-}
-
-/* Animation for success/error messages */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Focus state improvements for accessibility */
-lightning-input-field:focus-within {
-    outline: 2px solid #1589ee;
-    outline-offset: 2px;
-    border-radius: 0.25rem;
-}
-
-/* Required field indicator enhancement */
-lightning-input-field[required]::before {
-    content: '';
-    display: inline-block;
-}
-
-/* Custom styling for the card header */
-lightning-card::part(title) {
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-/* Button hover effects */
-lightning-button:hover {
-    transform: translateY(-1px);
-    transition: transform 0.2s ease;
-}
-
-lightning-button:active {
-    transform: translateY(0);
-}
-
-/* Field label styling */
-lightning-input-field::part(label) {
-    font-weight: 600;
-    color: #3e3e3c;
-}
-
-/* Help text styling */
-lightning-input-field::part(help-text) {
-    font-size: 0.75rem;
-    color: #706e6b;
 }

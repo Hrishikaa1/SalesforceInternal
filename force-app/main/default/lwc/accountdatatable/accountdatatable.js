@@ -1,133 +1,74 @@
 import { LightningElement, wire, track } from 'lwc';
-import MethodForAcc from '@salesforce/apex/AccountDatatableCls.MethodForAcc';
-import { updateRecord, createRecord } from 'lightning/uiRecordApi';
+import getLeads from '@salesforce/apex/AccountDatatableCls.getLeads';
+import CreateEditLeadModal from 'c/createLead';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
-import LEAD_OBJECT from '@salesforce/schema/Lead';
 
-export default class Accountdatatable extends LightningElement {
-    @track Leads = [];
+export default class AccountDatatable extends LightningElement {
+    @track leads = [];
     @track error;
-    @track draftValues = [];
-    @track newRows = [];
-    wiredAccountsResult;
-    rowIdCounter = 0;
+    @track selectedRows = [];
+    wiredLeadsResult;
 
-    // Define columns for the datatable
     columns = [
-        { label: 'Lead ID', fieldName: 'Id', type: 'text', editable: false },
-        { label: 'Phone', fieldName: 'Phone', type: 'phone', editable: true },
-        { label: 'Company', fieldName: 'Company', type: 'text', editable: true },
-        { label: 'Industry', fieldName: 'Industry', type: 'picklist', editable: true },
-        { label: 'Rating', fieldName: 'Rating', type: 'picklist', editable: true },
-        { label: 'Last Name', fieldName: 'LastName', type: 'text', editable: true }
+        { label: 'Lead ID',   fieldName: 'Id',      type: 'text' },
+        { label: 'Last Name', fieldName: 'LastName',type: 'text' },
+        { label: 'Company',   fieldName: 'Company', type: 'text' },
+        { label: 'Phone',     fieldName: 'Phone',   type: 'phone'},
+        { label: 'Email',     fieldName: 'Email',   type: 'email'},
+        { label: 'Status',    fieldName: 'Status',  type: 'text' },
+        { label: 'Rating',    fieldName: 'Rating',  type: 'text' }
     ];
 
-    @wire(MethodForAcc)
-    wiredAccounts(result) {
-        this.wiredAccountsResult = result;
+    @wire(getLeads)
+    wiredLeads(result) {
+        this.wiredLeadsResult = result;
         if (result.data) {
-            this.Leads = [...result.data];
+            this.leads = [...result.data];
             this.error = undefined;
         } else if (result.error) {
-            this.error = result.error.body?.message || 'Unknown error occurred';
-            this.Leads = [];
+            this.error = result.error.body?.message || 'Unknown error';
+            this.leads = [];
         }
     }
 
-    get isSaveDisabled() {
-        return this.draftValues.length === 0 && this.newRows.length === 0;
+    handleRowSelection(event) {
+        this.selectedRows = event.detail.selectedRows;
     }
 
-    // Add a new blank row
-    handleAddRow() {
-        const newRow = {
-            Id: `temp-${this.rowIdCounter++}`,
-            Phone: '',
-            Company: '',
-            Industry: '',
-            Rating: '',
-            LastName: '',
-            isNew: true
-        };
-        this.newRows.push(newRow);
-        this.Leads = [...this.Leads, newRow];
+    async handleCreateLead() {
+        const result = await CreateEditLeadModal.open({ size: 'medium' });
+        if (result === 'refresh') this.refreshData();
     }
 
-    // Handle inline save (pencil icon save)
-    handleSave(event) {
-        this.draftValues = event.detail.draftValues;
-    }
-
-    // Handle Save All button click
-    handleSaveAll() {
-        const recordsToUpdate = [];
-        const recordsToCreate = [];
-
-        // Process draft values (existing records to update)
-        this.draftValues.forEach(draft => {
-            const leadData = this.Leads.find(lead => lead.Id === draft.Id);
-            if (leadData && !leadData.isNew) {
-                recordsToUpdate.push({ fields: { ...draft } });
-            } else if (leadData && leadData.isNew) {
-                // New row that was edited
-                recordsToCreate.push({
-                    Phone: draft.Phone || leadData.Phone,
-                    Company: draft.Company || leadData.Company,
-                    Industry: draft.Industry || leadData.Industry,
-                    Rating: draft.Rating || leadData.Rating,
-                    LastName: draft.LastName || leadData.LastName || 'Default'
-                });
-            }
-        });
-
-        // Process completely new rows (not yet in draft values)
-        this.newRows.forEach(newRow => {
-            const isDrafted = this.draftValues.some(draft => draft.Id === newRow.Id);
-            if (!isDrafted && newRow.LastName) {
-                recordsToCreate.push({
-                    Phone: newRow.Phone,
-                    Company: newRow.Company,
-                    Industry: newRow.Industry,
-                    Rating: newRow.Rating,
-                    LastName: newRow.LastName || 'Default'
-                });
-            }
-        });
-
-        const promises = [];
-
-        // Update existing records
-        if (recordsToUpdate.length > 0) {
-            promises.push(...recordsToUpdate.map(record => updateRecord(record)));
-        }
-
-        // Create new records
-        if (recordsToCreate.length > 0) {
-            promises.push(...recordsToCreate.map(record => 
-                createRecord({ apiName: LEAD_OBJECT.objectApiName, fields: record })
-            ));
-        }
-
-        if (promises.length === 0) {
-            this.showToast('Info', 'No changes to save', 'info');
+    async handleEditLead() {
+        if (!this.selectedRows.length) {
+            this.showToast('Warning','Select one lead','warning');
             return;
         }
-
-        Promise.all(promises)
-            .then(() => {
-                this.showToast('Success', 'Records Saved Successfully', 'success');
-                this.draftValues = [];
-                this.newRows = [];
-                return refreshApex(this.wiredAccountsResult);
-            })
-            .catch(error => {
-                const errorMessage = error.body?.message || error.message || 'Error saving records';
-                this.showToast('Error', errorMessage, 'error');
-            });
+        if (this.selectedRows.length > 1) {
+            this.showToast('Warning','Select only one lead','warning');
+            return;
+        }
+        const result = await CreateEditLeadModal.open({
+            size: 'medium',
+            recordId: this.selectedRows[0].Id
+        });
+        if (result === 'refresh') this.refreshData();
     }
 
-    showToast(title, message, variant) {
-        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
+    refreshData() {
+        this.selectedRows = [];
+        return refreshApex(this.wiredLeadsResult)
+            .then(() => this.showToast('Success','Refreshed','success'))
+            .catch(() => this.showToast('Error','Refresh failed','error'));
+    }
+
+    showToast(t, m, v) {
+        this.dispatchEvent(new ShowToastEvent({ title:t, message:m, variant:v }));
+    }
+
+    get isEditDisabled() {
+        return this.selectedRows.length !== 1;
     }
 }

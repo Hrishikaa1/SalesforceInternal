@@ -1,38 +1,55 @@
 <template>
-    <lightning-card title="Lead Datatable">
+    <lightning-card title="Lead Management">
         <div slot="actions">
-            <lightning-button 
-                label="Add Row" 
-                onclick={handleAddRow} 
-                variant="brand"
-                icon-name="utility:add">
-            </lightning-button>
+            <lightning-button-group>
+                <lightning-button label="Create New Lead"
+                                  onclick={handleCreateLead}
+                                  variant="brand"
+                                  icon-name="utility:add">
+                </lightning-button>
+
+                <lightning-button label="Edit Lead"
+                                  onclick={handleEditLead}
+                                  variant="neutral"
+                                  icon-name="utility:edit"
+                                  disabled={isEditDisabled}>
+                </lightning-button>
+
+                <lightning-button label="Refresh"
+                                  onclick={refreshData}
+                                  variant="neutral"
+                                  icon-name="utility:refresh">
+                </lightning-button>
+            </lightning-button-group>
         </div>
-        
-        <template if:true={Leads}>
-            <lightning-datatable
-                key-field="Id"
-                data={Leads}
-                columns={columns}
-                draft-values={draftValues}
-                onsave={handleSave}
-                >
+
+        <!-- Datatable -->
+        <template if:true={leads}>
+            <lightning-datatable key-field="Id"
+                                 data={leads}
+                                 columns={columns}
+                                 onrowselection={handleRowSelection}
+                                 show-row-number-column>
             </lightning-datatable>
         </template>
-        
+
+        <!-- Error -->
         <template if:true={error}>
-            <p class="slds-text-color_error slds-p-around_small">{error}</p>
+            <div class="slds-p-around_medium">
+                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <h2>{error}</h2>
+                </div>
+            </div>
         </template>
 
-        <div slot="footer" class="slds-clearfix">
-            <div class="slds-float_right slds-p-around_small">
-                <lightning-button 
-                    label="Save Records" 
-                    onclick={handleSaveAll} 
-                    variant="success"
-                    disabled={isSaveDisabled}>
-                </lightning-button>
-            </div>
-        </div>
+        <!-- Loading -->
+        <template if:false={leads}>
+            <template if:false={error}>
+                <div class="slds-p-around_medium slds-text-align_center">
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </div>
+            </template>
+        </template>
     </lightning-card>
 </template>
