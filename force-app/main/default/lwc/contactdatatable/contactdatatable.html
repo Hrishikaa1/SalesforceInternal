@@ -1,15 +1,15 @@
 <template>
-    <lightning-card title="Lead Management">
+    <lightning-card title="Contact Management">
         <div slot="actions">
             <lightning-button-group>
-                <lightning-button label="Create New Lead"
-                                  onclick={handleCreateLead}
+                <lightning-button label="Create New Contact"
+                                  onclick={handleCreateContact}
                                   variant="brand"
                                   icon-name="utility:add">
                 </lightning-button>
 
-                <lightning-button label="Edit Lead"
-                                  onclick={handleEditLead}
+                <lightning-button label="Edit Contact"
+                                  onclick={handleEditContact}
                                   variant="neutral"
                                   icon-name="utility:edit"
                                   disabled={isEditDisabled}>
@@ -24,9 +24,9 @@
         </div>
 
         <!-- Datatable -->
-        <template if:true={leads}>
+        <template if:true={contacts}>
             <lightning-datatable key-field="Id"
-                                 data={leads}
+                                 data={contacts}
                                  columns={columns}
                                  onrowselection={handleRowSelection}
                                  show-row-number-column>
@@ -44,7 +44,7 @@
         </template>
 
         <!-- Loading -->
-        <template if:false={leads}>
+        <template if:false={contacts}>
             <template if:false={error}>
                 <div class="slds-p-around_medium slds-text-align_center">
                     <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>

@@ -1,3 +1,4 @@
+
 import { LightningElement, wire, track } from 'lwc';
 import getLeads from '@salesforce/apex/AccountDatatableCls.getLeads';
 import CreateEditLeadModal from 'c/createLead';

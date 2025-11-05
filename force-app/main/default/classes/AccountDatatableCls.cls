@@ -13,9 +13,7 @@ public without sharing class AccountDatatableCls {
     public static List<Lead> getLeads() {
         try {
             return [
-                SELECT Id, LastName, Company, Email, Phone, Status, 
-                       Rating, Title, Channel__c, Geography__c, 
-                       Direct_Indirect__c, Business_Type__c, Contact_type__c
+                SELECT Id, LastName, Email, Phone, Contact_type__c
                 FROM Lead 
                 ORDER BY CreatedDate DESC 
                 LIMIT 200
@@ -24,4 +22,6 @@ public without sharing class AccountDatatableCls {
             throw new AuraHandledException('Error retrieving leads: ' + e.getMessage());
         }
     }
+
+    
 }

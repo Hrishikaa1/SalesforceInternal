@@ -1,0 +1,84 @@
+<template>
+    <lightning-modal-header label={modalTitle}></lightning-modal-header>
+
+    <lightning-modal-body>
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+        </template>
+
+        <div class="slds-grid slds-wrap slds-gutters slds-p-around_medium">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    label="Last Name"
+                    data-field="LastName"
+                    value={contactRecord.LastName}
+                    onchange={handleChange}
+                    required>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="email"
+                    label="Email"
+                    data-field="Email"
+                    value={contactRecord.Email}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="tel"
+                    label="Phone"
+                    data-field="Phone"
+                    value={contactRecord.Phone}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="tel"
+                    label="Mobile Phone"
+                    data-field="MobilePhone"
+                    value={contactRecord.MobilePhone}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    label="Contact Type"
+                    data-field="Contact_type__c"
+                    value={contactRecord.Contact_type__c}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+              <!--   <lightning-input
+                    label="Account Id"
+                    data-field="AccountId"
+                    value={contactRecord.AccountId}
+                    onchange={handleChange}>
+                </lightning-input> -->
+            </div>
+        </div>
+    </lightning-modal-body>
+
+    <lightning-modal-footer>
+        <lightning-button
+            variant="neutral"
+            label="Cancel"
+            onclick={handleCancel}
+            disabled={isLoading}>
+        </lightning-button>
+        <lightning-button
+            variant="brand"
+            label="Save"
+            onclick={handleSave}
+            disabled={isLoading}>
+        </lightning-button>
+    </lightning-modal-footer>
+</template>

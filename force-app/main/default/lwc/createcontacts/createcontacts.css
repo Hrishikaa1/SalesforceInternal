@@ -1,0 +1,8 @@
+lightning-modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+    background: #fafaf9;
+    border-top: 1px solid #f3f2f2;
+    border-bottom: 1px solid #f3f2f2;
+}
+.slds-text-heading_small { border-bottom: 2px solid #0176d3; padding-bottom: .5rem; }
