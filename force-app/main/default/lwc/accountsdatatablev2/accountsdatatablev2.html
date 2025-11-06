@@ -1,0 +1,55 @@
+<template>
+    <lightning-card title="Account Management">
+        <div slot="actions">
+            <lightning-button-group>
+                <lightning-button label="Create New Account"
+                                  onclick={handleCreateAccount}
+                                  variant="brand"
+                                  icon-name="utility:add">
+                </lightning-button>
+
+                <lightning-button label="Edit Account"
+                                  onclick={handleEditAccount}
+                                  variant="neutral"
+                                  icon-name="utility:edit"
+                                  disabled={isEditDisabled}>
+                </lightning-button>
+
+                <lightning-button label="Refresh"
+                                  onclick={refreshData}
+                                  variant="neutral"
+                                  icon-name="utility:refresh">
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+
+        <!-- Datatable -->
+        <template if:true={Accounts}>
+            <lightning-datatable key-field="Id"
+                                 data={Accounts}
+                                 columns={columns}
+                                 onrowselection={handleRowSelection}
+                                 show-row-number-column>
+            </lightning-datatable>
+        </template>
+
+        <!-- Error -->
+        <template if:true={error}>
+            <div class="slds-p-around_medium">
+                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <h2>{error}</h2>
+                </div>
+            </div>
+        </template>
+
+        <!-- Loading -->
+        <template if:false={Accounts}>
+            <template if:false={error}>
+                <div class="slds-p-around_medium slds-text-align_center">
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </div>
+            </template>
+        </template>
+    </lightning-card>
+</template>

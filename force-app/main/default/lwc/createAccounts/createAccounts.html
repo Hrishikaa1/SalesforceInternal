@@ -8,9 +8,9 @@
         <div class="slds-grid slds-wrap slds-gutters slds-p-around_medium">
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
-                    label="Last Name"
-                    data-field="LastName"
-                    value={contactRecord.LastName}
+                    label="Name"
+                    data-field="Name"
+                    value={AccountRecord.LastName}
                     onchange={handleChange}
                     required>
                 </lightning-input>
@@ -18,50 +18,52 @@
 
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
-                    type="email"
-                    label="Email"
-                    data-field="Email"
-                    value={contactRecord.Email}
+                    type="Picklist"
+                    label="Direct_Indirect__c"
+                    data-field="Direct_Indirect__c"
+                    value={AccountRecord.Direct_Indirect__c}
                     onchange={handleChange}>
                 </lightning-input>
             </div>
+          
 
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
                     type="tel"
                     label="Phone"
                     data-field="Phone"
-                    value={contactRecord.Phone}
+                    value={AccountRecord.Phone}
                     onchange={handleChange}>
                 </lightning-input>
+            </div>
+
+        
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    label="Overall Rating"
+                    data-field="Overall_Rating__c"
+                    value={AccountRecord.Overall_Rating__c}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+            
+        <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    label="Website"
+                    data-field="Website"
+                    value={AccountRecord.Website}
+                    onchange={handleChange}>
+                </lightning-input> 
             </div>
 
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
-                    type="tel"
-                    label="Mobile Phone"
-                    data-field="MobilePhone"
-                    value={contactRecord.MobilePhone}
+                    label="Fax"
+                    data-field="Fax"
+                    value={AccountRecord.Fax}
                     onchange={handleChange}>
-                </lightning-input>
-            </div>
-
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input
-                    label="Contact Type"
-                    data-field="Contact_type__c"
-                    value={contactRecord.Contact_type__c}
-                    onchange={handleChange}>
-                </lightning-input>
-            </div>
-
-            <div class="slds-col slds-size_1-of-2">
-              <!--   <lightning-input
-                    label="Account Id"
-                    data-field="AccountId"
-                    value={contactRecord.AccountId}
-                    onchange={handleChange}>
-                </lightning-input> -->
+                </lightning-input> 
             </div>
         </div>
     </lightning-modal-body>

@@ -12,7 +12,7 @@ export default class AccountDatatable extends LightningElement {
     wiredLeadsResult;
 
     columns = [
-        { label: 'Lead ID',   fieldName: 'Id',      type: 'text' },
+       /*  { label: 'Lead ID',   fieldName: 'Id',      type: 'text' }, */
         { label: 'Last Name', fieldName: 'LastName',type: 'text' },
         { label: 'Company',   fieldName: 'Company', type: 'text' },
         { label: 'Phone',     fieldName: 'Phone',   type: 'phone'},

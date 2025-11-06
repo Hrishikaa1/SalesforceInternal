@@ -1,58 +1,61 @@
 
 import { LightningElement, wire, track } from 'lwc';
-import getContacts from '@salesforce/apex/GuestContactController.getContacts';
-import CreateEditContactModal from 'c/createcontacts';
+import getAccounts from '@salesforce/apex/guestAccountController.getAccounts';
+import CreateEditAccountModal from 'c/createAccounts';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
 
-export default class ContactDatatable extends LightningElement {
-     @track contacts = [];
+export default class Accountsdatatablev2 extends LightningElement {
+
+     @track Accounts = [];
     @track error;
     @track selectedRows = [];
-    wiredContactsResult;
+    wiredAccountsResult;
 
     columns = [
-       // { label: 'Contact ID', fieldName: 'Id', type: 'text' },
+       // { label: 'Account ID', fieldName: 'Id', type: 'text' },
         { label: 'Name', fieldName: 'Name', type: 'text' },
        // { label: 'Account ID', fieldName: 'AccountId', type: 'text' },
-        { label: 'Phone', fieldName: 'Phone', type: 'phone' },
-        { label: 'Mobile Phone', fieldName: 'MobilePhone', type: 'phone' },
-        { label: 'Email', fieldName: 'Email', type: 'email' },
-        { label: 'Contact Type', fieldName: 'Contact_type__c', type: 'text' }
+        { label: 'Overall Rating', fieldName: 'Overall_Rating__c', type: 'text' },
+        { label: 'Mobile Website', fieldName: 'MobileWebsite', type: 'URL' },
+        { label: 'Fax', fieldName: 'Fax', type: 'Phone' },
+        { label: 'Phone', fieldName: 'Phone', type: 'Phone' },
+        { label: 'Direct/Indirect', fieldName: 'Direct_Indirect__c', type: 'Picklist' }
     ];
 
-    @wire(getContacts)
-    wiredContacts(result) {
-        this.wiredContactsResult = result;
+    
+    @wire(getAccounts)
+    wiredAccounts(result) {
+        this.wiredAccountsResult = result;
         if (result.data) {
-            this.contacts = [...result.data];
+            this.Accounts = [...result.data];
             this.error = undefined;
         } else if (result.error) {
             this.error = result.error.body?.message || 'Unknown error';
-            this.contacts = [];
+            this.Accounts = [];
         }
     }
 
     handleRowSelection(event) {
         this.selectedRows = event.detail.selectedRows;
     }
-async handleCreateContact() {
-    const result = await CreateEditContactModal.open({ size: 'medium' });
+async handleCreateAccount() {
+    const result = await CreateEditAccountModal.open({ size: 'medium' });
     if (result === 'refresh') this.refreshData();
 }
 
     // 3) EDIT button handler (uncomment/replace)
-async handleEditContact() {
+async handleEditAccount() {
     if (!this.selectedRows.length) {
-        this.showToast('Warning','Select one contact','warning');
+        this.showToast('Warning','Select one Account','warning');
         return;
     }
     if (this.selectedRows.length > 1) {
-        this.showToast('Warning','Select only one contact','warning');
+        this.showToast('Warning','Select only one Account','warning');
         return;
     }
 
-    const result = await CreateEditContactModal.open({
+    const result = await CreateEditAccountModal.open({
         size: 'medium',
         recordId: this.selectedRows[0].Id // use the selected checkbox row Id
     });
@@ -61,7 +64,7 @@ async handleEditContact() {
 
     refreshData() {
         this.selectedRows = [];
-        return refreshApex(this.wiredContactsResult)
+        return refreshApex(this.wiredAccountsResult)
             .then(() => this.showToast('Success','Refreshed','success'))
             .catch(() => this.showToast('Error','Refresh failed','error'));
     }
@@ -74,3 +77,4 @@ async handleEditContact() {
         return this.selectedRows.length !== 1;
     }
 }
+
