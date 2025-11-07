@@ -5,28 +5,23 @@
                 <lightning-button label="Create New Account"
                                   onclick={handleCreateAccount}
                                   variant="brand"
-                                  icon-name="utility:add">
-                </lightning-button>
-
+                                  icon-name="utility:add"></lightning-button>
                 <lightning-button label="Edit Account"
                                   onclick={handleEditAccount}
                                   variant="neutral"
                                   icon-name="utility:edit"
-                                  disabled={isEditDisabled}>
-                </lightning-button>
-
+                                  disabled={isEditDisabled}></lightning-button>
                 <lightning-button label="Refresh"
                                   onclick={refreshData}
                                   variant="neutral"
-                                  icon-name="utility:refresh">
-                </lightning-button>
+                                  icon-name="utility:refresh"></lightning-button>
             </lightning-button-group>
         </div>
 
         <!-- Datatable -->
-        <template if:true={Accounts}>
+        <template if:true={accounts}>
             <lightning-datatable key-field="Id"
-                                 data={Accounts}
+                                 data={accounts}
                                  columns={columns}
                                  onrowselection={handleRowSelection}
                                  show-row-number-column>
@@ -44,7 +39,7 @@
         </template>
 
         <!-- Loading -->
-        <template if:false={Accounts}>
+        <template if:false={accounts}>
             <template if:false={error}>
                 <div class="slds-p-around_medium slds-text-align_center">
                     <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>

@@ -1,85 +1,81 @@
 <template>
     <lightning-modal-header label={modalTitle}></lightning-modal-header>
+
     <lightning-modal-body>
         <template if:true={isLoading}>
             <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
         </template>
 
         <div class="slds-grid slds-wrap slds-gutters slds-p-around_medium">
+            <!-- Name -->
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
                     label="Name"
                     data-field="Name"
-                    value={AccountRecord.LastName}
+                    value={accountRecord.Name}
                     onchange={handleChange}
                     required>
                 </lightning-input>
             </div>
 
+            <!-- Direct/Indirect (Picklist) -->
             <div class="slds-col slds-size_1-of-2">
-                <lightning-input
-                    type="Picklist"
-                    label="Direct_Indirect__c"
+                <lightning-combobox
+                    label="Direct/Indirect"
                     data-field="Direct_Indirect__c"
-                    value={AccountRecord.Direct_Indirect__c}
-                    onchange={handleChange}>
-                </lightning-input>
+                    value={accountRecord.Direct_Indirect__c}
+                    options={directIndirectOptions}
+                    onchange={handleChange}
+                    required>
+                </lightning-combobox>
             </div>
-          
 
+            <!-- Phone -->
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
                     type="tel"
                     label="Phone"
                     data-field="Phone"
-                    value={AccountRecord.Phone}
+                    value={accountRecord.Phone}
                     onchange={handleChange}>
                 </lightning-input>
             </div>
 
-        
-
+            <!-- Website -->
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
-                    label="Overall Rating"
-                    data-field="Overall_Rating__c"
-                    value={AccountRecord.Overall_Rating__c}
+                    type="url"
+                    label="Website"
+                    data-field="Website"
+                    value={accountRecord.Website}
                     onchange={handleChange}>
                 </lightning-input>
             </div>
-            
-        <div class="slds-col slds-size_1-of-2">
-                <lightning-input
-                    label="Website"
-                    data-field="Website"
-                    value={AccountRecord.Website}
-                    onchange={handleChange}>
-                </lightning-input> 
-            </div>
 
+            <!-- Fax -->
             <div class="slds-col slds-size_1-of-2">
                 <lightning-input
                     label="Fax"
                     data-field="Fax"
-                    value={AccountRecord.Fax}
+                    value={accountRecord.Fax}
                     onchange={handleChange}>
-                </lightning-input> 
+                </lightning-input>
+            </div>
+
+            <!-- Overall Rating -->
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    label="Overall Rating"
+                    data-field="Overall_Rating__c"
+                    value={accountRecord.Overall_Rating__c}
+                    onchange={handleChange}>
+                </lightning-input>
             </div>
         </div>
     </lightning-modal-body>
 
     <lightning-modal-footer>
-        <lightning-button
-            variant="neutral"
-            label="Cancel"
-            onclick={handleCancel}
-            disabled={isLoading}>
-        </lightning-button>
-        <lightning-button
-            variant="brand"
-            label="Save"
-            onclick={handleSave}
-            disabled={isLoading}>
-        </lightning-button>
+        <lightning-button variant="neutral" label="Cancel" onclick={handleCancel} disabled={isLoading}></lightning-button>
+        <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isLoading}></lightning-button>
     </lightning-modal-footer>
 </template>
