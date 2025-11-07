@@ -16,27 +16,4 @@
         <target>lightning__Tab</target>
     </targets>
     
-    <targetConfigs>
-        <targetConfig targets="lightningCommunity__Default">
-            <property name="showTitle" type="Boolean" default="true" label="Show Title"/>
-            <property name="customTitle" type="String" default="Create Opportunity" label="Custom Title"/>
-            <property name="cardIconName" type="String" default="standard:opportunity" label="Card Icon"/>
-            <property name="redirectAfterCreate" type="Boolean" default="false" label="Redirect After Create"/>
-            <property name="resetFormAfterCreate" type="Boolean" default="false" label="Reset Form After Create"/>
-            <property name="opportunityIdToUpdate" type="String" label="Opportunity Id to Update"/>
-        </targetConfig>
-        
-        <targetConfig targets="lightning__RecordPage,lightning__HomePage,lightning__AppPage">
-            <property name="showTitle" type="Boolean" default="true" label="Show Title"/>
-            <property name="customTitle" type="String" default="Create Opportunity" label="Custom Title"/>
-            <property name="cardIconName" type="String" default="standard:opportunity" label="Card Icon"/>
-            <property name="redirectAfterCreate" type="Boolean" default="false" label="Redirect After Create"/>
-            <property name="resetFormAfterCreate" type="Boolean" default="false" label="Reset Form After Create"/>
-            <property name="opportunityIdToUpdate" type="String" label="Opportunity Id to Update"/>
-        </targetConfig>
-        
-        <targetConfig targets="lightning__RecordAction">
-            <actionType>ScreenAction</actionType>
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>

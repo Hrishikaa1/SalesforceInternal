@@ -1,170 +1,219 @@
 <template>
-    <lightning-card title={pageTitle} icon-name={cardIconName}>
-        <div class="slds-p-around_medium">
-            
-            <template if:true={showSuccess}>
-                <div class="slds-m-bottom_medium">
-                    <div class="slds-notify slds-notify_alert slds-alert_success" role="alert">
-                        <span class="slds-assistive-text">Success</span>
-                        <span class="slds-icon_container slds-icon-utility-success slds-m-right_x-small">
-                            <lightning-icon icon-name="utility:success" alternative-text="Success" size="x-small" variant="inverse"></lightning-icon>
-                        </span>
-                        <template if:true={isUpdateMode}>
-                            <h2>Opportunity updated successfully!</h2>
-                        </template>
-                        <template if:false={isUpdateMode}>
-                            <h2>Opportunity created successfully! ID: {createdOpportunityId}</h2>
-                        </template>
-                    </div>
-                </div>
-            </template>
+    <lightning-modal-header label={modalTitle}></lightning-modal-header>
 
-            <template if:true={errorMessage}>
-                <div class="slds-m-bottom_medium">
-                    <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
-                        <span class="slds-assistive-text">Error</span>
-                        <span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small">
-                            <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small" variant="inverse"></lightning-icon>
-                        </span>
-                        <h2>{errorMessage}</h2>
-                    </div>
-                </div>
-            </template>
+    <lightning-modal-body>
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+        </template>
 
-            <form onsubmit={handleSubmit}>
-                <div class="slds-grid slds-wrap slds-gutters">
-                    
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input
-                            label="Opportunity Name"
-                            name="opportunityName"
-                            value={opportunityName}
-                            onchange={handleInputChange}
-                            required>
-                        </lightning-input>
-                    </div>
+        <div class="slds-grid slds-wrap slds-gutters slds-p-around_medium">
+            <!-- Read-only context (no editing for Account/Owner) -->
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input label="Account Name" value={accountName} disabled></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input label="Opportunity Owner" value={ownerName} disabled></lightning-input>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input
-                            label="Account Name"
-                            name="accountName"
-                            value={accountName}
-                            onchange={handleInputChange}>
-                        </lightning-input>
-                    </div>
+            <!-- Core fields -->
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    label="Opportunity Name"
+                    data-field="Name"
+                    value={oppRecord.Name}
+                    onchange={handleChange}
+                    required>
+                </lightning-input>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input
-                            type="number"
-                            label="Amount"
-                            name="amount"
-                            value={amount}
-                            formatter="currency"
-                            onchange={handleInputChange}>
-                        </lightning-input>
-                    </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="date"
+                    label="Close Date"
+                    data-field="CloseDate"
+                    value={oppRecord.CloseDate}
+                    onchange={handleChange}
+                    required>
+                </lightning-input>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input
-                            type="date"
-                            label="Close Date"
-                            name="closeDate"
-                            value={closeDate}
-                            onchange={handleInputChange}
-                            required>
-                        </lightning-input>
-                    </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Stage"
+                    data-field="StageName"
+                    value={oppRecord.StageName}
+                    options={stageOptions}
+                    onchange={handleChange}
+                    required>
+                </lightning-combobox>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-combobox
-                            label="Stage"
-                            name="stageName"
-                            value={stageName}
-                            placeholder="Select Stage"
-                            options={stageOptions}
-                            onchange={handleInputChange}
-                            required>
-                        </lightning-combobox>
-                    </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="number"
+                    label="Probability (%)"
+                    data-field="Probability"
+                    value={oppRecord.Probability}
+                    min="0" max="100"
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-input
-                            type="number"
-                            label="Probability (%)"
-                            name="probability"
-                            value={probability}
-                            min="0"
-                            max="100"
-                            onchange={handleInputChange}>
-                        </lightning-input>
-                    </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="number"
+                    label="Amount"
+                    data-field="Amount"
+                    value={oppRecord.Amount}
+                    formatter="currency"
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-combobox
-                            label="Type"
-                            name="oppType"
-                            value={oppType}
-                            placeholder="Select Type"
-                            options={typeOptions}
-                            onchange={handleInputChange}>
-                        </lightning-combobox>
-                    </div>
+            <!-- Business fields (dynamic picklists) -->
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Type"
+                    data-field="Type"
+                    value={oppRecord.Type}
+                    options={typeOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                        <lightning-combobox
-                            label="Lead Source"
-                            name="leadSource"
-                            value={leadSource}
-                            placeholder="Select Lead Source"
-                            options={leadSourceOptions}
-                            onchange={handleInputChange}>
-                        </lightning-combobox>
-                    </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Opportunity Type"
+                    data-field="Opportunity_Type__c"
+                    value={oppRecord.Opportunity_Type__c}
+                    options={opportunityTypeOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1">
-                        <lightning-input
-                            label="Next Step"
-                            name="nextStep"
-                            value={nextStep}
-                            onchange={handleInputChange}>
-                        </lightning-input>
-                    </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Channel"
+                    data-field="Channel__c"
+                    value={oppRecord.Channel__c}
+                    options={channelOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
-                    <div class="slds-col slds-size_1-of-1">
-                        <lightning-textarea
-                            label="Description"
-                            name="description"
-                            value={description}
-                            onchange={handleInputChange}>
-                        </lightning-textarea>
-                    </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Geography"
+                    data-field="Geography__c"
+                    value={oppRecord.Geography__c}
+                    options={geographyOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
-                </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Direct/Indirect"
+                    data-field="Direct_Indirect__c"
+                    value={oppRecord.Direct_Indirect__c}
+                    options={directIndirectOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
-                <div class="slds-m-top_medium">
-                    <lightning-button
-                        variant="neutral"
-                        label="Cancel"
-                        onclick={handleCancel}
-                        class="slds-m-right_small">
-                    </lightning-button>
-                    <lightning-button
-                        variant="brand"
-                        type="submit"
-                        label={buttonLabel}
-                        data-id="submit-button">
-                    </lightning-button>
-                </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Business Type"
+                    data-field="Business_Type__c"
+                    value={oppRecord.Business_Type__c}
+                    options={businessTypeOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
-            </form>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Contact Type"
+                    data-field="Contact_type__c"
+                    value={oppRecord.Contact_type__c}
+                    options={contactTypeOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
-            <template if:true={isLoading}>
-                <lightning-spinner
-                    alternative-text="Processing..."
-                    size="medium">
-                </lightning-spinner>
-            </template>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Offering"
+                    data-field="Offering__c"
+                    value={oppRecord.Offering__c}
+                    options={offeringOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
 
+            <!-- Other fields -->
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="number"
+                    label="Number of Resources"
+                    data-field="Number_of_Resources__c"
+                    value={oppRecord.Number_of_Resources__c}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox
+                    label="Type of Engagement"
+                    data-field="Type_of_Engagement__c"
+                    value={oppRecord.Type_of_Engagement__c}
+                    options={typeOfEngagementOptions}
+                    onchange={handleChange}>
+                </lightning-combobox>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="date"
+                    label="Start Date"
+                    data-field="Start_Date__c"
+                    value={oppRecord.Start_Date__c}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input
+                    type="date"
+                    label="End Date"
+                    data-field="End_Date__c"
+                    value={oppRecord.End_Date__c}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-input
+                    label="Project Code"
+                    data-field="Project_Code__c"
+                    value={oppRecord.Project_Code__c}
+                    onchange={handleChange}>
+                </lightning-input>
+            </div>
+
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-textarea
+                    label="Description"
+                    data-field="Description"
+                    value={oppRecord.Description}
+                    onchange={handleChange}>
+                </lightning-textarea>
+            </div>
         </div>
-    </lightning-card>
+    </lightning-modal-body>
+
+    <lightning-modal-footer>
+        <lightning-button variant="neutral" label="Cancel" onclick={handleCancel} disabled={isLoading}></lightning-button>
+        <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isLoading}></lightning-button>
+    </lightning-modal-footer>
 </template>

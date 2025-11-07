@@ -1,225 +1,187 @@
-/**
- * ------------------------------------------------------------------------------
- * @description     Controller for creating, updating, and retrieving Opportunity records.
- * @author          Hrishika
- * @date            03-Nov-2025
- * @version         1.0
- * 
- * @scope           Designed for Experience Cloud guest users to manage Opportunity data.
- * @notes           Includes only required and allowed fields for safe guest-level operations:
- *                  - AccountId
- *                  - Name
- *                  - StageName
- *                  - CloseDate
- *                  - Description
- *                  - Amount
- *                  - Probability
- *                  - Type
- *                  - ContactId
- *                  - Opportunity_Type__c
- *                  - Channel__c
- *                  - Geography__c
- *                  - Direct_Indirect__c
- *                  - Business_Type__c
- *                  - Contact_type__c
- *                  - FY_Goals__c
- *                  - Project_Code__c
- *                  - Type_of_Engagement__c
- *                  - End_Date__c
- *                  - Start_Date__c
- *                  - Number_of_Resources__c
- *                  - Offering__c
- * 
- * @security        Runs without sharing — enforce FLS & CRUD via LWC or Aura component.
- * ------------------------------------------------------------------------------
- */
-
 public without sharing class GuestOpportunityController {
 
-    /**
-     * @description Creates a new Opportunity record with limited field exposure.
-     * @param oppData   Map of Opportunity field API names to their values.
-     * @return          String - Newly created Opportunity Id.
-     */
+    // Writable fields only (no relationship display fields, no duplicates)
+    private static final Set<String> ALLOWED_FIELDS = new Set<String>{
+        'AccountId',
+        'Name',
+        'Description',
+        'StageName',
+        'Amount',
+        'Probability',
+        'CloseDate',
+        'Type',
+        'Opportunity_Type__c',
+        'Channel__c',
+        'Geography__c',
+        'Direct_Indirect__c',
+        'Business_Type__c',
+        'Contact_type__c',
+        'FY_Goals__c',
+        'Project_Code__c',
+        'Type_of_Engagement__c',
+        'End_Date__c',
+        'Start_Date__c',
+        'Number_of_Resources__c',
+        'Offering__c'
+    };
+
+    // ---------------- CREATE ----------------
     @AuraEnabled
     public static String createOpportunity(Map<String, Object> oppData) {
+        validateRequiredFields(oppData);
+
+        Opportunity opp = new Opportunity();
+        applyFields(opp, oppData);
+
+        if (opp.StageName == null) {
+            opp.StageName = 'Prospecting';
+        }
+
         try {
-            // Validate mandatory inputs
-            validateRequiredFields(oppData);
-
-            Opportunity newOpp = new Opportunity();
-
-            // Whitelisted fields for guest users
-            List<String> allowedFields = new List<String>{
-                'AccountId', 'Name', 'Description', 'StageName', 'Amount', 'Probability',
-                'CloseDate', 'Type', 'ContactId', 'Opportunity_Type__c', 'Channel__c',
-                'Geography__c', 'Direct_Indirect__c', 'Business_Type__c', 'Contact_type__c',
-                'FY_Goals__c', 'Project_Code__c', 'Type_of_Engagement__c', 'End_Date__c',
-                'Start_Date__c', 'Number_of_Resources__c', 'Offering__c'
-            };
-
-            // Dynamic population of allowed fields
-            for (String fieldName : oppData.keySet()) {
-                if (allowedFields.contains(fieldName)) {
-                    Object fieldValue = oppData.get(fieldName);
-                    if (fieldValue != null && String.valueOf(fieldValue).trim() != '') {
-                        if (fieldName == 'CloseDate') {
-                            newOpp.CloseDate = Date.valueOf(String.valueOf(fieldValue));
-                        } else {
-                            newOpp.put(fieldName, fieldValue);
-                        }
-                    }
-                }
-            }
-
-            // Set default StageName if not provided
-            if (newOpp.StageName == null) {
-                newOpp.StageName = 'Prospecting';
-            }
-
-            insert newOpp;
-            return newOpp.Id;
-
+            insert opp;
+            return opp.Id;
         } catch (DmlException e) {
-            throw new AuraHandledException('Error creating Opportunity: ' + e.getDmlMessage(0));
-        } catch (Exception e) {
-            throw new AuraHandledException('Error: ' + e.getMessage());
+            throw new AuraHandledException(e.getDmlMessage(0));
         }
     }
 
-    /**
-     * @description Updates an existing Opportunity record safely.
-     * @param oppId     Id of the Opportunity record to update.
-     * @param oppData   Map of field API names and values to update.
-     * @return          String - Confirmation message.
-     */
+    // ---------------- UPDATE ----------------
     @AuraEnabled
     public static String updateOpportunity(String oppId, Map<String, Object> oppData) {
+        if (String.isBlank(oppId)) {
+            throw new AuraHandledException('Opportunity Id is required');
+        }
+
+        Opportunity opp = new Opportunity(Id = oppId);
+        applyFields(opp, oppData);
+
         try {
-            if (String.isBlank(oppId)) {
-                throw new AuraHandledException('Opportunity Id is required');
-            }
-
-            Opportunity existingOpp = [
-                SELECT Id 
-                FROM Opportunity 
-                WHERE Id = :oppId 
-                LIMIT 1
-            ];
-
-            List<String> allowedFields = new List<String>{
-                'AccountId', 'Name', 'Description', 'StageName', 'Amount', 'Probability',
-                'CloseDate', 'Type', 'ContactId', 'Opportunity_Type__c', 'Channel__c',
-                'Geography__c', 'Direct_Indirect__c', 'Business_Type__c', 'Contact_type__c',
-                'FY_Goals__c', 'Project_Code__c', 'Type_of_Engagement__c', 'End_Date__c',
-                'Start_Date__c', 'Number_of_Resources__c', 'Offering__c'
-            };
-
-            for (String fieldName : oppData.keySet()) {
-                if (allowedFields.contains(fieldName)) {
-                    Object fieldValue = oppData.get(fieldName);
-                    if (fieldValue != null && String.valueOf(fieldValue).trim() != '') {
-                        if (fieldName == 'CloseDate') {
-                            existingOpp.CloseDate = Date.valueOf(String.valueOf(fieldValue));
-                        } else {
-                            existingOpp.put(fieldName, fieldValue);
-                        }
-                    }
-                }
-            }
-
-            update existingOpp;
+            update opp;
             return 'Opportunity updated successfully';
-
-        } catch (QueryException e) {
-            throw new AuraHandledException('Opportunity not found');
         } catch (DmlException e) {
-            throw new AuraHandledException('Error updating Opportunity: ' + e.getDmlMessage(0));
-        } catch (Exception e) {
-            throw new AuraHandledException('Error: ' + e.getMessage());
+            throw new AuraHandledException(e.getDmlMessage(0));
         }
     }
 
-    /**
-     * @description Fetches a specific Opportunity record by Id with limited fields.
-     * @param oppId  Opportunity Id.
-     * @return       Opportunity record.
-     */
+    // ---------------- GET BY ID ----------------
     @AuraEnabled(cacheable=true)
     public static Opportunity getOpportunityById(String oppId) {
-        try {
-            if (String.isBlank(oppId)) {
-                throw new AuraHandledException('Opportunity Id is required');
-            }
-
-            return [
-                SELECT Id, AccountId, Name, Description, StageName, Amount, Probability,
-                       CloseDate, Type, ContactId, Opportunity_Type__c, Channel__c,
-                       Geography__c, Direct_Indirect__c, Business_Type__c, Contact_type__c,
-                       FY_Goals__c, Project_Code__c, Type_of_Engagement__c, End_Date__c,
-                       Start_Date__c, Number_of_Resources__c, Offering__c
-                FROM Opportunity 
-                WHERE Id = :oppId 
-                LIMIT 1
-            ];
-
-        } catch (QueryException e) {
-            throw new AuraHandledException('Opportunity not found');
-        } catch (Exception e) {
-            throw new AuraHandledException('Error: ' + e.getMessage());
+        if (String.isBlank(oppId)) {
+            throw new AuraHandledException('Opportunity Id is required');
         }
+
+        return [
+            SELECT Id, AccountId, Name, Description, StageName, Amount, Probability,
+                   CloseDate, Type, Opportunity_Type__c, Channel__c, Geography__c,
+                   Direct_Indirect__c, Business_Type__c, Contact_type__c, FY_Goals__c,
+                   Project_Code__c, Type_of_Engagement__c, End_Date__c, Start_Date__c,
+                   Number_of_Resources__c, Offering__c,
+                   Account.Name,
+                   Owner.Name
+            FROM Opportunity
+            WHERE Id = :oppId
+            LIMIT 1
+        ];
     }
 
-    /**
-     * @description Search helper to fetch Account records by name (for Account lookup).
-     * @param searchTerm Partial or full Account Name.
-     * @return           List of Account Id/Name pairs for UI lookup.
-     */
+    // ---------------- ACCOUNT LOOKUP SUPPORT ----------------
     @AuraEnabled(cacheable=true)
     public static List<Map<String, String>> getAccounts(String searchTerm) {
-        try {
-            String searchKey = '%' + searchTerm + '%';
-            List<Account> accounts = [
-                SELECT Id, Name
-                FROM Account
-                WHERE Name LIKE :searchKey
-                LIMIT 10
-            ];
+        String search = '%' + (searchTerm == null ? '' : searchTerm.trim()) + '%';
 
-            List<Map<String, String>> accountList = new List<Map<String, String>>();
-            for (Account acc : accounts) {
-                accountList.add(new Map<String, String>{
-                    'value' => acc.Id,
-                    'label' => acc.Name
-                });
+        List<Map<String, String>> results = new List<Map<String, String>>();
+        for (Account a : [
+            SELECT Id, Name FROM Account
+            WHERE Name LIKE :search
+            LIMIT 10
+        ]) {
+            results.add(new Map<String, String>{
+                'value' => a.Id,
+                'label' => a.Name
+            });
+        }
+        return results;
+    }
+
+    // ---------------- LIST (for Datatable) ----------------
+@AuraEnabled(cacheable=true)
+public static List<Opportunity> getOpportunities() {
+    try {
+        return [
+            SELECT Id,
+                   Name,
+                   AccountId,
+                   Account.Name,
+                   FY_Goals__c,
+                   FY_Goals__r.Name,
+                   Type,
+                   Opportunity_Type__c,
+                   Channel__c
+            FROM Opportunity
+            ORDER BY LastModifiedDate DESC
+            LIMIT 10
+        ];
+    } catch (Exception e) {
+        throw new AuraHandledException('Unable to fetch opportunities: ' + e.getMessage());
+    }
+}
+
+    // ---------------- HELPERS ----------------
+
+    private static void applyFields(Opportunity opp, Map<String, Object> oppData) {
+        for (String fieldName : oppData.keySet()) {
+            if (!ALLOWED_FIELDS.contains(fieldName)) continue;
+
+            Object raw = oppData.get(fieldName);
+            if (raw == null) {
+                opp.put(fieldName, null);
+                continue;
             }
 
-            return accountList;
-
-        } catch (Exception e) {
-            throw new AuraHandledException('Error: ' + e.getMessage());
+            // Date conversion
+            if (fieldName == 'CloseDate' || fieldName == 'Start_Date__c' || fieldName == 'End_Date__c') {
+                opp.put(fieldName, coerceDate(raw));
+            }
+            // Numeric conversion
+            else if (fieldName == 'Amount' || fieldName == 'Probability' || fieldName == 'Number_of_Resources__c') {
+                opp.put(fieldName, coerceDecimal(raw));
+            }
+            // Everything else
+            else {
+                opp.put(fieldName, String.valueOf(raw).trim());
+            }
         }
     }
 
-    /**
-     * @description Validates key required fields for Opportunity creation/update.
-     * @param oppData Map of Opportunity data.
-     */
+    private static Date coerceDate(Object input) {
+        if (input == null) return null;
+        String s = String.valueOf(input).trim();
+
+        try { return Date.valueOf(s); } catch (Exception e) {}
+
+        if (s.contains('/')) {
+            List<String> p = s.split('/');
+            return Date.newInstance(Integer.valueOf(p[2]), Integer.valueOf(p[1]), Integer.valueOf(p[0]));
+        }
+
+        throw new AuraHandledException('Invalid date format: ' + s);
+    }
+
+    private static Decimal coerceDecimal(Object input) {
+        if (input == null) return null;
+        String s = String.valueOf(input).replace('%','').trim();
+        return Decimal.valueOf(s);
+    }
+
     private static void validateRequiredFields(Map<String, Object> oppData) {
-        if (!oppData.containsKey('Name') || String.isBlank(String.valueOf(oppData.get('Name')))) {
+        if (String.isBlank((String)oppData.get('Name'))) {
             throw new AuraHandledException('Opportunity Name is required');
         }
-
-        if (!oppData.containsKey('CloseDate') || oppData.get('CloseDate') == null) {
+        if (String.isBlank(String.valueOf(oppData.get('CloseDate')))) {
             throw new AuraHandledException('Close Date is required');
         }
-
-        if (!oppData.containsKey('StageName') || String.isBlank(String.valueOf(oppData.get('StageName')))) {
-            throw new AuraHandledException('Stage is required');
-        }
-
-        if (!oppData.containsKey('AccountId') || String.isBlank(String.valueOf(oppData.get('AccountId')))) {
-            throw new AuraHandledException('Account is required');
+        if (String.isBlank((String)oppData.get('StageName'))) {
+            throw new AuraHandledException('Stage Name is required');
         }
     }
 }

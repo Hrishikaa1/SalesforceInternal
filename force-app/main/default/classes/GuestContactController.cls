@@ -101,7 +101,6 @@ public without sharing class GuestContactController {
             throw new AuraHandledException('Error retrieving contacts: ' + e.getMessage());
         }
     }
-
     // ------------------------- VALIDATION -------------------------
     private static void validateRequiredFields(Map<String, Object> data) {
         if (String.isBlank(String.valueOf(data.get('LastName')))) {

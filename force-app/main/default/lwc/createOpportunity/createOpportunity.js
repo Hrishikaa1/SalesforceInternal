@@ -1,302 +1,187 @@
-import { LightningElement, track, api } from 'lwc';
+import { api, track, wire } from 'lwc';
+import LightningModal from 'lightning/modal';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { NavigationMixin } from 'lightning/navigation';
+
+import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
+import OPPORTUNITY_OBJECT from '@salesforce/schema/Opportunity';
+
+// Picklist field imports
+import STAGE_FIELD from '@salesforce/schema/Opportunity.StageName';
+import TYPE_FIELD from '@salesforce/schema/Opportunity.Type';
+import OPP_TYPE_FIELD from '@salesforce/schema/Opportunity.Opportunity_Type__c';
+import CHANNEL_FIELD from '@salesforce/schema/Opportunity.Channel__c';
+import GEOGRAPHY_FIELD from '@salesforce/schema/Opportunity.Geography__c';
+import DIRECT_INDIRECT_FIELD from '@salesforce/schema/Opportunity.Direct_Indirect__c';
+import BUSINESS_TYPE_FIELD from '@salesforce/schema/Opportunity.Business_Type__c';
+import CONTACT_TYPE_FIELD from '@salesforce/schema/Opportunity.Contact_type__c';
+import OFFERING_FIELD from '@salesforce/schema/Opportunity.Offering__c';
+import ENGAGEMENT_FIELD from '@salesforce/schema/Opportunity.Type_of_Engagement__c';
+
+// Apex
 import createOpportunity from '@salesforce/apex/GuestOpportunityController.createOpportunity';
 import updateOpportunity from '@salesforce/apex/GuestOpportunityController.updateOpportunity';
 import getOpportunityById from '@salesforce/apex/GuestOpportunityController.getOpportunityById';
 
-export default class CreateOpportunity extends NavigationMixin(LightningElement) {
-    @api showTitle;
-    @api customTitle = 'Create Opportunity';
-    @api cardIconName = 'standard:opportunity';
-    @api redirectAfterCreate = false;
-    @api resetFormAfterCreate = false;
-    @api opportunityIdToUpdate;
-    
-    @track showSuccess = false;
-    @track errorMessage = '';
+export default class CreateOpportunity extends LightningModal {
+    @api recordId; // Opportunity Id for edit
+
     @track isLoading = false;
-    @track createdOpportunityId = '';
-    
-    @track opportunityName = '';
-    @track accountId = '';
+
+    // Display-only context
     @track accountName = '';
-    @track amount = '';
-    @track closeDate = '';
-    @track stageName = '';
-    @track probability = '';
-    @track oppType = '';
-    @track leadSource = '';
-    @track nextStep = '';
-    @track description = '';
-    
+    @track ownerName = '';
+
+    // Editable payload
+    @track oppRecord = {
+        Name: '',
+        Amount: null,
+        CloseDate: '',
+        StageName: '',
+        Probability: null,
+        Type: '',
+        LeadSource: '',
+        NextStep: '',
+        Description: '',
+        Opportunity_Type__c: '',
+        Channel__c: '',
+        Geography__c: '',
+        Direct_Indirect__c: '',
+        Business_Type__c: '',
+        Contact_type__c: '',
+        Offering__c: '',
+        Number_of_Resources__c: null,
+        Type_of_Engagement__c: '',
+        Start_Date__c: '',
+        End_Date__c: '',
+        Project_Code__c: ''
+        // AccountId / OwnerId intentionally not exposed for editing here
+    };
+
+    // ----- Object & Picklists (Dynamic) -----
+    recordTypeId;
+
+    @wire(getObjectInfo, { objectApiName: OPPORTUNITY_OBJECT })
+    oppInfo({ data }) {
+        if (data) {
+            this.recordTypeId = data.defaultRecordTypeId;
+        }
+    }
+
+    // Each picklist wires against recordTypeId
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: STAGE_FIELD })
+    stagePicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: TYPE_FIELD })
+    typePicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: OPP_TYPE_FIELD })
+    oppTypePicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: CHANNEL_FIELD })
+    channelPicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: GEOGRAPHY_FIELD })
+    geographyPicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: DIRECT_INDIRECT_FIELD })
+    directIndirectPicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: BUSINESS_TYPE_FIELD })
+    businessTypePicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: CONTACT_TYPE_FIELD })
+    contactTypePicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: OFFERING_FIELD })
+    offeringPicklist;
+
+    @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: ENGAGEMENT_FIELD })
+    engagementPicklist;
+
+    // Combo options (pass-through of wire values)
+    get stageOptions() { return this.stagePicklist?.data?.values || []; }
+    get typeOptions() { return this.typePicklist?.data?.values || []; }
+    get opportunityTypeOptions() { return this.oppTypePicklist?.data?.values || []; }
+    get channelOptions() { return this.channelPicklist?.data?.values || []; }
+    get geographyOptions() { return this.geographyPicklist?.data?.values || []; }
+    get directIndirectOptions() { return this.directIndirectPicklist?.data?.values || []; }
+    get businessTypeOptions() { return this.businessTypePicklist?.data?.values || []; }
+    get contactTypeOptions() { return this.contactTypePicklist?.data?.values || []; }
+    get offeringOptions() { return this.offeringPicklist?.data?.values || []; }
+    get typeOfEngagementOptions() { return this.engagementPicklist?.data?.values || []; }
+
     connectedCallback() {
-        if (this.opportunityIdToUpdate) {
+        if (this.recordId) {
             this.loadOpportunity();
         }
     }
-    
-    loadOpportunity() {
+
+    async loadOpportunity() {
         this.isLoading = true;
-        getOpportunityById({ oppId: this.opportunityIdToUpdate })
-            .then(result => {
-                this.opportunityName = result.Name;
-                this.accountId = result.AccountId;
-                this.amount = result.Amount;
-                this.closeDate = result.CloseDate;
-                this.stageName = result.StageName;
-                this.probability = result.Probability;
-                this.oppType = result.Type;
-                this.leadSource = result.LeadSource;
-                this.nextStep = result.NextStep;
-                this.description = result.Description;
-                this.isLoading = false;
-            })
-            .catch(error => {
-                this.handleError(error);
-            });
+        try {
+            const rec = await getOpportunityById({ oppId: this.recordId });
+            // Normalize for UI
+            this.oppRecord = {
+                ...this.oppRecord,
+                ...rec
+            };
+            this.accountName = rec?.Account?.Name || '';
+            this.ownerName = rec?.Owner?.Name || '';
+        } catch (e) {
+            this.toast('Error', e.body?.message || e.message, 'error');
+            this.close();
+        } finally {
+            this.isLoading = false;
+        }
     }
-    
-    get stageOptions() {
-        return [
-            { label: 'Prospecting', value: 'Prospecting' },
-            { label: 'Qualification', value: 'Qualification' },
-            { label: 'Needs Analysis', value: 'Needs Analysis' },
-            { label: 'Value Proposition', value: 'Value Proposition' },
-            { label: 'Id. Decision Makers', value: 'Id. Decision Makers' },
-            { label: 'Perception Analysis', value: 'Perception Analysis' },
-            { label: 'Proposal/Price Quote', value: 'Proposal/Price Quote' },
-            { label: 'Negotiation/Review', value: 'Negotiation/Review' },
-            { label: 'Closed Won', value: 'Closed Won' },
-            { label: 'Closed Lost', value: 'Closed Lost' }
-        ];
+
+    handleChange(event) {
+        const field = event.target.dataset.field;
+        let value = event.target.value;
+
+        // Normalize numeric fields
+        if (['Amount', 'Probability', 'Number_of_Resources__c'].includes(field)) {
+            value = value === '' || value === null ? null : Number(value);
+        }
+        this.oppRecord[field] = value;
     }
-    
-    get typeOptions() {
-        return [
-            { label: '--None--', value: '' },
-            { label: 'Existing Customer - Upgrade', value: 'Existing Customer - Upgrade' },
-            { label: 'Existing Customer - Replacement', value: 'Existing Customer - Replacement' },
-            { label: 'Existing Customer - Downgrade', value: 'Existing Customer - Downgrade' },
-            { label: 'New Customer', value: 'New Customer' }
-        ];
-    }
-    
-    get leadSourceOptions() {
-        return [
-            { label: '--None--', value: '' },
-            { label: 'Web', value: 'Web' },
-            { label: 'Phone Inquiry', value: 'Phone Inquiry' },
-            { label: 'Partner Referral', value: 'Partner Referral' },
-            { label: 'Purchased List', value: 'Purchased List' },
-            { label: 'Other', value: 'Other' }
-        ];
-    }
-    
-    get isUpdateMode() {
-        return this.opportunityIdToUpdate != null;
-    }
-    
-    get buttonLabel() {
-        return this.isUpdateMode ? 'Update Opportunity' : 'Create Opportunity';
-    }
-    
-    get pageTitle() {
-        return (this.showTitle !== false) ? this.customTitle : null;
-    }
-    
-    handleInputChange(event) {
-        const field = event.target.name;
-        this[field] = event.target.value;
-    }
-    
-    handleSubmit(event) {
-        event.preventDefault();
-        
-        this.showSuccess = false;
-        this.errorMessage = '';
-        
-        if (!this.validateRequiredFields()) {
+
+    async handleSave() {
+        // Guardrails
+        if (!this.oppRecord.Name || !this.oppRecord.CloseDate || !this.oppRecord.StageName) {
+            this.toast('Error', 'Name, Close Date, and Stage are required.', 'error');
             return;
         }
-        
+        if (this.oppRecord.Start_Date__c && this.oppRecord.End_Date__c &&
+            this.oppRecord.End_Date__c < this.oppRecord.Start_Date__c) {
+            this.toast('Error', 'End Date must be on or after Start Date.', 'error');
+            return;
+        }
+
         this.isLoading = true;
-        
-        const oppData = {
-            Name: this.opportunityName,
-            AccountId: this.accountId,
-            Amount: this.amount ? parseFloat(this.amount) : null,
-            CloseDate: this.closeDate,
-            StageName: this.stageName,
-            Probability: this.probability ? parseFloat(this.probability) : null,
-            Type: this.oppType,
-            LeadSource: this.leadSource,
-            NextStep: this.nextStep,
-            Description: this.description
-        };
-        
-        if (this.isUpdateMode) {
-            this.updateOpportunityRecord(oppData);
-        } else {
-            this.createOpportunityRecord(oppData);
-        }
-    }
-    
-    createOpportunityRecord(oppData) {
-        createOpportunity({ oppData: oppData })
-            .then(result => {
-                this.isLoading = false;
-                this.createdOpportunityId = result;
-                this.showSuccess = true;
-                
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Success',
-                        message: 'Opportunity created successfully!',
-                        variant: 'success'
-                    })
-                );
-                
-                this.dispatchEvent(new CustomEvent('opportunitysaved', {
-                    detail: { recordId: result }
-                }));
-                
-                setTimeout(() => {
-                    this.showSuccess = false;
-                }, 5000);
-                
-                if (this.redirectAfterCreate) {
-                    this.navigateToRecord(result);
-                } else if (this.resetFormAfterCreate) {
-                    setTimeout(() => {
-                        this.resetForm();
-                    }, 2000);
-                }
-            })
-            .catch(error => {
-                this.handleError(error);
-            });
-    }
-    
-    updateOpportunityRecord(oppData) {
-        updateOpportunity({ oppId: this.opportunityIdToUpdate, oppData: oppData })
-            .then(result => {
-                this.isLoading = false;
-                this.showSuccess = true;
-                
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Success',
-                        message: result,
-                        variant: 'success'
-                    })
-                );
-                
-                this.dispatchEvent(new CustomEvent('opportunityupdated', {
-                    detail: { recordId: this.opportunityIdToUpdate }
-                }));
-                
-                setTimeout(() => {
-                    this.showSuccess = false;
-                }, 5000);
-                
-                if (this.redirectAfterCreate) {
-                    this.navigateToRecord(this.opportunityIdToUpdate);
-                }
-            })
-            .catch(error => {
-                this.handleError(error);
-            });
-    }
-    
-    handleError(error) {
-        this.isLoading = false;
-        this.showSuccess = false;
-        
-        let message = 'Unknown error';
-        if (error.body && error.body.message) {
-            message = error.body.message;
-        } else if (error.message) {
-            message = error.message;
-        }
-        
-        this.errorMessage = message;
-        
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Error',
-                message: message,
-                variant: 'error',
-                mode: 'sticky'
-            })
-        );
-        
-        this.dispatchEvent(new CustomEvent('opportunityerror', {
-            detail: { error: message }
-        }));
-    }
-    
-    validateRequiredFields() {
-        let isValid = true;
-        
-        if (!this.opportunityName || this.opportunityName.trim() === '') {
-            this.errorMessage = 'Opportunity Name is required';
-            isValid = false;
-        } else if (!this.closeDate) {
-            this.errorMessage = 'Close Date is required';
-            isValid = false;
-        } else if (!this.stageName || this.stageName.trim() === '') {
-            this.errorMessage = 'Stage is required';
-            isValid = false;
-        }
-        
-        return isValid;
-    }
-    
-    handleCancel() {
-        this.resetForm();
-        this.dispatchEvent(new CustomEvent('cancel'));
-    }
-    
-    resetForm() {
-        this.opportunityName = '';
-        this.accountId = '';
-        this.accountName = '';
-        this.amount = '';
-        this.closeDate = '';
-        this.stageName = '';
-        this.probability = '';
-        this.oppType = '';
-        this.leadSource = '';
-        this.nextStep = '';
-        this.description = '';
-        
-        this.showSuccess = false;
-        this.errorMessage = '';
-        this.createdOpportunityId = '';
-    }
-    
-    navigateToRecord(recordId) {
-        this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
-            attributes: {
-                recordId: recordId,
-                objectApiName: 'Opportunity',
-                actionName: 'view'
+        try {
+            if (this.recordId) {
+                await updateOpportunity({ oppId: this.recordId, oppData: this.oppRecord });
+                this.toast('Success', 'Opportunity updated', 'success');
+            } else {
+                await createOpportunity({ oppData: this.oppRecord });
+                this.toast('Success', 'Opportunity created', 'success');
             }
-        });
-    }
-    
-    @api
-    submitForm() {
-        const submitButton = this.template.querySelector('lightning-button[data-id="submit-button"]');
-        if (submitButton) {
-            submitButton.click();
+            this.close('refresh');
+        } catch (e) {
+            this.toast('Error', e.body?.message || e.message, 'error');
+        } finally {
+            this.isLoading = false;
         }
     }
-    
-    @api
-    clearForm() {
-        this.resetForm();
+
+    handleCancel() { this.close(); }
+
+    toast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
+    }
+
+    get modalTitle() {
+        return this.recordId ? 'Edit Opportunity' : 'Create New Opportunity';
     }
 }
