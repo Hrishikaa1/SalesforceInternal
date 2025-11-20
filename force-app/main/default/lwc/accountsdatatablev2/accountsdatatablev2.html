@@ -1,50 +1,94 @@
 <template>
-    <lightning-card title="Account Management">
+    <lightning-card title="Account Management" icon-name="standard:account">
         <div slot="actions">
             <lightning-button-group>
                 <lightning-button label="Create New Account"
                                   onclick={handleCreateAccount}
                                   variant="brand"
                                   icon-name="utility:add"></lightning-button>
-                <lightning-button label="Edit Account"
-                                  onclick={handleEditAccount}
-                                  variant="neutral"
-                                  icon-name="utility:edit"
-                                  disabled={isEditDisabled}></lightning-button>
                 <lightning-button label="Refresh"
                                   onclick={refreshData}
-                                  variant="neutral"
                                   icon-name="utility:refresh"></lightning-button>
             </lightning-button-group>
         </div>
 
-        <!-- Datatable -->
-        <template if:true={accounts}>
-            <lightning-datatable key-field="Id"
-                                 data={accounts}
-                                 columns={columns}
-                                 onrowselection={handleRowSelection}
-                                 show-row-number-column>
-            </lightning-datatable>
-        </template>
-
-        <!-- Error -->
-        <template if:true={error}>
-            <div class="slds-p-around_medium">
-                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
-                    <span class="slds-assistive-text">error</span>
-                    <h2>{error}</h2>
-                </div>
-            </div>
-        </template>
-
-        <!-- Loading -->
-        <template if:false={accounts}>
-            <template if:false={error}>
-                <div class="slds-p-around_medium slds-text-align_center">
-                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-                </div>
-            </template>
-        </template>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="slds-text-title_caps" scope="col" style="width: 50px;">
+                        <div class="slds-truncate" title="#">#</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col" style="width: 120px;">
+                        <div class="slds-truncate" title="Actions">Actions</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Name">Name</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Overall Rating">Overall Rating</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Website">Website</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Fax">Fax</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Phone">Phone</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Direct/Indirect">Direct/Indirect</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={accounts} for:item="account">
+                    <tr key={account.Id} class="slds-hint-parent">
+                        <td data-label="#">
+                            <div class="slds-truncate">{account.rowNumber}</div>
+                        </td>
+                        <td data-label="Actions">
+                            <div class="slds-truncate">
+                                <lightning-button 
+                                    label="Edit" 
+                                    variant="base"
+                                    class="slds-text-link_reset"
+                                    data-id={account.Id}
+                                    onclick={handleEditClick}>
+                                </lightning-button>
+                                <span> | </span>
+                                <lightning-button 
+                                    label="View" 
+                                    variant="base"
+                                    class="slds-text-link_reset"
+                                    data-id={account.Id}
+                                    onclick={handleViewClick}>
+                                </lightning-button>
+                            </div>
+                        </td>
+                        <td data-label="Name">
+                            <div class="slds-truncate" title={account.Name}>{account.Name}</div>
+                        </td>
+                        <td data-label="Overall Rating">
+                            <div class="slds-truncate" title={account.Overall_Rating__c}>{account.Overall_Rating__c}</div>
+                        </td>
+                        <td data-label="Website">
+                            <template if:true={account.Website}>
+                                <a href={account.Website} target="_blank" class="slds-truncate">{account.Website}</a>
+                            </template>
+                        </td>
+                        <td data-label="Fax">
+                            <div class="slds-truncate" title={account.Fax}>{account.Fax}</div>
+                        </td>
+                        <td data-label="Phone">
+                            <div class="slds-truncate" title={account.Phone}>{account.Phone}</div>
+                        </td>
+                        <td data-label="Direct/Indirect">
+                            <div class="slds-truncate" title={account.Direct_Indirect__c}>{account.Direct_Indirect__c}</div>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
     </lightning-card>
 </template>

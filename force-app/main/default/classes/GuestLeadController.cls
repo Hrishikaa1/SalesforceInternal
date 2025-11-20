@@ -1,25 +1,41 @@
-/**
- * ------------------------------------------------------------------------------
- * @description     Controller for creating, updating, and retrieving Lead records
- * @author          Hrishika
- * @date            03-Nov-2025
- * @version         1.1
- * 
- * @scope           Designed for guest user operations within Experience Cloud
- * @notes           Includes field-level handling for:
- *                  Channel__c, Title, Geography__c, Direct_Indirect__c,
- *                  Business_Type__c, Contact_type__c, Status, Phone, Rating, Email
- * 
- * @security        Runs without sharing — ensure FLS & CRUD enforcement in LWC/Aura
- * ------------------------------------------------------------------------------
- */
 public without sharing class GuestLeadController {
 
-    // List of fields allowed to be modified/created
+    // ------------------------- GET ALL LEADS (SITE-BASED FILTER) -------------------------
+    @AuraEnabled(cacheable=true)
+    public static List<Lead> getLeads() {
+        try {
+            String siteName = getCurrentSiteName();
+
+            return [
+                SELECT Id, LastName, Company, Email, Phone, Status, Rating, Submitted_by__c
+                FROM Lead
+                WHERE Submitted_by__c = :siteName
+                ORDER BY CreatedDate DESC
+                LIMIT 200
+            ];
+        } catch (Exception e) {
+            throw new AuraHandledException('Error retrieving leads: ' + e.getMessage());
+        }
+    }
+
+    // ------------------------- ALLOWED FIELDS -------------------------
     private static final List<String> ALLOWED_FIELDS = new List<String>{
-        'Channel__c', 'Title', 'Geography__c', 'Direct_Indirect__c',
-        'Business_Type__c', 'Contact_type__c', 'Status',
-        'Phone', 'Rating', 'Email', 'LastName', 'Company'
+        'Salutation',
+        'FirstName',
+        'LastName',
+        'Company',
+        'Title',
+        'Email',
+        'Phone',
+        'Status',
+        'Rating',
+        'Channel__c',
+        'Geography__c',
+        'Direct_Indirect__c',
+        'Business_Type__c',
+        'Contact_type__c',
+        'Submitted_by__c',
+        'LeadSource'
     };
 
     // ------------------------- CREATE LEAD -------------------------
@@ -30,6 +46,7 @@ public without sharing class GuestLeadController {
 
             Lead newLead = new Lead();
 
+            // Set allowed fields from UI
             for (String fieldName : leadData.keySet()) {
                 if (ALLOWED_FIELDS.contains(fieldName)) {
                     Object val = leadData.get(fieldName);
@@ -38,6 +55,10 @@ public without sharing class GuestLeadController {
                     }
                 }
             }
+
+            // Always override "Submitted_by__c" with current site name
+            String siteName = getCurrentSiteName();
+            newLead.Submitted_by__c = siteName;
 
             // Default fallback values
             if (String.isBlank(newLead.Status)) {
@@ -64,14 +85,24 @@ public without sharing class GuestLeadController {
 
         try {
             Lead existingLead = [
-                SELECT Id FROM Lead WHERE Id = :leadId LIMIT 1
+                SELECT Id, Submitted_by__c FROM Lead WHERE Id = :leadId LIMIT 1
             ];
 
+            // Prevent editing leads from **another site**
+            String siteName = getCurrentSiteName();
+            if (existingLead.Submitted_by__c != siteName) {
+                throw new AuraHandledException('You can only edit records submitted from this site.');
+            }
+
+            // Apply allowed updates (never allow Submitted_by__c to be changed)
             for (String fieldName : leadData.keySet()) {
-                if (ALLOWED_FIELDS.contains(fieldName)) {
+                if (ALLOWED_FIELDS.contains(fieldName) && fieldName != 'Submitted_by__c') {
                     Object val = leadData.get(fieldName);
                     if (val != null && String.valueOf(val).trim() != '') {
                         existingLead.put(fieldName, val);
+                    } else {
+                        // if empty string/null provided, explicitly set null for that field
+                        existingLead.put(fieldName, null);
                     }
                 }
             }
@@ -96,14 +127,37 @@ public without sharing class GuestLeadController {
         }
 
         try {
-            return [
-                SELECT Id, Channel__c, Title, Geography__c, Direct_Indirect__c,
-                       Business_Type__c, Contact_type__c, Status,
-                       Phone, Rating, Email, LastName, Company
+            Lead l = [
+                SELECT Id,
+                       Salutation,
+                       FirstName,
+                       LastName,
+                       Company,
+                       Title,
+                       Email,
+                       Phone,
+                       Status,
+                       Rating,
+                       Channel__c,
+                       Geography__c,
+                       Direct_Indirect__c,
+                       Business_Type__c,
+                       Contact_type__c,
+                       Submitted_by__c,
+                       LeadSource
                 FROM Lead
                 WHERE Id = :leadId
                 LIMIT 1
             ];
+
+            // Prevent viewing other site's leads
+            String siteName = getCurrentSiteName();
+            if (l.Submitted_by__c != siteName) {
+                throw new AuraHandledException('You do not have permission to view this record.');
+            }
+
+            return l;
+
         } catch (QueryException qe) {
             throw new AuraHandledException('Lead not found');
         } catch (Exception e) {
@@ -133,4 +187,67 @@ public without sharing class GuestLeadController {
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
+
+    // ------------------------- GET PICKLIST VALUES -------------------------
+    @AuraEnabled(cacheable=true)
+    public static Map<String, List<String>> getLeadPicklistValues() {
+        Map<String, List<String>> picklistMap = new Map<String, List<String>>();
+
+        List<String> fields = new List<String>{
+            'Salutation',
+            'Channel__c',
+            'Geography__c',
+            'Direct_Indirect__c',
+            'Business_Type__c',
+            'Contact_type__c',
+            'Submitted_by__c',
+            'LeadSource',
+            'Rating',
+            'Status'
+        };
+
+        Schema.DescribeSObjectResult leadDescribe = Lead.SObjectType.getDescribe();
+        Map<String, Schema.SObjectField> fieldMap = leadDescribe.fields.getMap();
+
+        for (String fieldName : fields) {
+            if (fieldMap.containsKey(fieldName)) {
+                Schema.DescribeFieldResult fieldResult = fieldMap.get(fieldName).getDescribe();
+                List<String> values = new List<String>();
+
+                for (Schema.PicklistEntry entry : fieldResult.getPicklistValues()) {
+                    if (entry.isActive()) values.add(entry.getLabel());
+                }
+
+                picklistMap.put(fieldName, values);
+            }
+        }
+
+        return picklistMap;
+    }
+
+    // ------------------------- SITE HELPER -------------------------
+private static String currentSiteName;
+private static String getCurrentSiteName() {
+    if (currentSiteName != null) return currentSiteName;
+
+    try {
+        Id netId = Network.getNetworkId();
+        if (netId != null) {
+            Network n = [
+                SELECT Id, Name
+                FROM Network
+                WHERE Id = :netId
+                LIMIT 1
+            ];
+            currentSiteName = n.Name;   // FIXED
+        } else {
+            currentSiteName = 'Default Site';
+        }
+    } catch (Exception ex) {
+        currentSiteName = 'Default Site';
+    }
+
+    return currentSiteName;
+}
+
 }

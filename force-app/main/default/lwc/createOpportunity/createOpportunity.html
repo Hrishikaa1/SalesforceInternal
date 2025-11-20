@@ -17,67 +17,201 @@
                     value={oppRecord.AccountId}
                     options={accountOptions}
                     onchange={handleChange}
-                    required>
+                    required
+                    disabled={isViewMode}>
                 </lightning-combobox>
-            </div>
-
-            <!-- Read-only Owner -->
-            <div class="slds-col slds-size_1-of-1">
-                <lightning-input label="Owner" value={ownerName} disabled></lightning-input>
             </div>
 
             <!-- Core Fields -->
             <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Opportunity Name" data-field="Name" value={oppRecord.Name} onchange={handleChange} required></lightning-input>
+                <lightning-input 
+                    label="Opportunity Name" 
+                    data-field="Name" 
+                    value={oppRecord.Name} 
+                    onchange={handleChange} 
+                    required
+                    disabled={isViewMode}>
+                </lightning-input>
             </div>
 
             <div class="slds-col slds-size_1-of-2">
-                <lightning-input type="date" label="Close Date" data-field="CloseDate" value={oppRecord.CloseDate} onchange={handleChange} required></lightning-input>
+                <lightning-input 
+                    type="date" 
+                    label="Close Date" 
+                    data-field="CloseDate" 
+                    value={oppRecord.CloseDate} 
+                    onchange={handleChange} 
+                    required
+                    disabled={isViewMode}>
+                </lightning-input>
             </div>
 
             <div class="slds-col slds-size_1-of-2">
-                <lightning-combobox label="Stage" data-field="StageName" value={oppRecord.StageName} options={stageOptions} onchange={handleChange} required></lightning-combobox>
+                <lightning-combobox 
+                    label="Stage" 
+                    data-field="StageName" 
+                    value={oppRecord.StageName} 
+                    options={stageOptions} 
+                    onchange={handleChange} 
+                    required
+                    disabled={isViewMode}>
+                </lightning-combobox>
             </div>
 
             <div class="slds-col slds-size_1-of-2">
-                <lightning-input type="number" label="Amount" data-field="Amount" value={oppRecord.Amount} onchange={handleChange}></lightning-input>
+                <lightning-input 
+                    type="number" 
+                    label="Amount" 
+                    data-field="Amount" 
+                    value={oppRecord.Amount} 
+                    onchange={handleChange}
+                    disabled={isViewMode}>
+                </lightning-input>
             </div>
 
             <!-- Picklists -->
             <div class="slds-col slds-size_1-of-2">
-                <lightning-combobox label="Type" data-field="Type" value={oppRecord.Type} options={typeOptions} onchange={handleChange}></lightning-combobox>
+                <lightning-combobox 
+                    label="Type" 
+                    data-field="Type" 
+                    value={oppRecord.Type} 
+                    options={typeOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
             </div>
 
             <div class="slds-col slds-size_1-of-2">
-                <lightning-combobox label="Opportunity Type" data-field="Opportunity_Type__c" value={oppRecord.Opportunity_Type__c} options={opportunityTypeOptions} onchange={handleChange}></lightning-combobox>
+                <lightning-combobox 
+                    label="Opportunity Type" 
+                    data-field="Opportunity_Type__c" 
+                    value={oppRecord.Opportunity_Type__c} 
+                    options={opportunityTypeOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
             </div>
 
             <div class="slds-col slds-size_1-of-2">
-                <lightning-combobox label="Channel" data-field="Channel__c" value={oppRecord.Channel__c} options={channelOptions} onchange={handleChange}></lightning-combobox>
+                <lightning-combobox 
+                    label="Channel" 
+                    data-field="Channel__c" 
+                    value={oppRecord.Channel__c} 
+                    options={channelOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
             </div>
 
             <div class="slds-col slds-size_1-of-2">
-                <lightning-combobox label="Business Type" data-field="Business_Type__c" value={oppRecord.Business_Type__c} options={businessTypeOptions} onchange={handleChange}></lightning-combobox>
+                <lightning-combobox 
+                    label="Business Type" 
+                    data-field="Business_Type__c" 
+                    value={oppRecord.Business_Type__c} 
+                    options={businessTypeOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox 
+                    label="Geography" 
+                    data-field="Geography__c" 
+                    value={oppRecord.Geography__c} 
+                    options={geographyOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox 
+                    label="Contact Type" 
+                    data-field="Contact_type__c" 
+                    value={oppRecord.Contact_type__c} 
+                    options={contactTypeOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox 
+                    label="Direct/Indirect" 
+                    data-field="Direct_Indirect__c" 
+                    value={oppRecord.Direct_Indirect__c} 
+                    options={directIndirectOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
+            </div>
+
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-combobox 
+                    label="Submitted By" 
+                    data-field="Submitted_by__c" 
+                    value={oppRecord.Submitted_by__c} 
+                    options={submittedByOptions} 
+                    onchange={handleChange}
+                    disabled={isViewMode}
+                    required>
+                </lightning-combobox>
             </div>
 
             <!-- Dates -->
             <div class="slds-col slds-size_1-of-2">
-                <lightning-input type="date" label="Start Date" data-field="Start_Date__c" value={oppRecord.Start_Date__c} onchange={handleChange}></lightning-input>
+                <lightning-input 
+                    type="date" 
+                    label="Start Date" 
+                    data-field="Start_Date__c" 
+                    value={oppRecord.Start_Date__c} 
+                    onchange={handleChange}
+                    disabled={isViewMode}>
+                </lightning-input>
             </div>
 
             <div class="slds-col slds-size_1-of-2">
-                <lightning-input type="date" label="End Date" data-field="End_Date__c" value={oppRecord.End_Date__c} onchange={handleChange}></lightning-input>
+                <lightning-input 
+                    type="date" 
+                    label="End Date" 
+                    data-field="End_Date__c" 
+                    value={oppRecord.End_Date__c} 
+                    onchange={handleChange}
+                    disabled={isViewMode}>
+                </lightning-input>
             </div>
 
             <!-- Description -->
             <div class="slds-col slds-size_1-of-1">
-                <lightning-textarea label="Description" data-field="Description" value={oppRecord.Description} onchange={handleChange}></lightning-textarea>
+                <lightning-textarea 
+                    label="Description" 
+                    data-field="Description" 
+                    value={oppRecord.Description} 
+                    onchange={handleChange}
+                    disabled={isViewMode}>
+                </lightning-textarea>
             </div>
         </div>
     </lightning-modal-body>
 
-    <lightning-modal-footer>
-        <lightning-button variant="neutral" label="Cancel" onclick={handleCancel} disabled={isLoading}></lightning-button>
-        <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isLoading}></lightning-button>
-    </lightning-modal-footer>
+    <template if:false={isViewMode}>
+        <lightning-modal-footer>
+            <lightning-button variant="neutral" label="Cancel" onclick={handleCancel} disabled={isLoading}></lightning-button>
+            <lightning-button variant="brand" label="Save" onclick={handleSave} disabled={isLoading}></lightning-button>
+        </lightning-modal-footer>
+    </template>
+
+    <template if:true={isViewMode}>
+        <lightning-modal-footer>
+            <lightning-button variant="brand" label="Close" onclick={handleCancel}></lightning-button>
+        </lightning-modal-footer>
+    </template>
 </template>

@@ -1,55 +1,106 @@
 <template>
-    <lightning-card title="Lead Management">
+    <lightning-card title="Lead Management" icon-name="standard:lead">
         <div slot="actions">
             <lightning-button-group>
-                <lightning-button label="Create New Lead"
-                                  onclick={handleCreateLead}
-                                  variant="brand"
-                                  icon-name="utility:add">
+                <lightning-button
+                    label="Create Lead"
+                    variant="brand"
+                    icon-name="utility:add"
+                    onclick={handleCreateLead}>
                 </lightning-button>
 
-                <lightning-button label="Edit Lead"
-                                  onclick={handleEditLead}
-                                  variant="neutral"
-                                  icon-name="utility:edit"
-                                  disabled={isEditDisabled}>
-                </lightning-button>
-
-                <lightning-button label="Refresh"
-                                  onclick={refreshData}
-                                  variant="neutral"
-                                  icon-name="utility:refresh">
+                <lightning-button
+                    label="Refresh"
+                    icon-name="utility:refresh"
+                    onclick={refreshData}>
                 </lightning-button>
             </lightning-button-group>
         </div>
 
-        <!-- Datatable -->
-        <template if:true={leads}>
-            <lightning-datatable key-field="Id"
-                                 data={leads}
-                                 columns={columns}
-                                 onrowselection={handleRowSelection}
-                                 show-row-number-column>
-            </lightning-datatable>
-        </template>
-
-        <!-- Error -->
-        <template if:true={error}>
-            <div class="slds-p-around_medium">
-                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
-                    <span class="slds-assistive-text">error</span>
-                    <h2>{error}</h2>
-                </div>
-            </div>
-        </template>
-
-        <!-- Loading -->
-        <template if:false={leads}>
-            <template if:false={error}>
-                <div class="slds-p-around_medium slds-text-align_center">
-                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-                </div>
-            </template>
-        </template>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="slds-text-title_caps" scope="col" style="width: 50px;">
+                        <div class="slds-truncate" title="#">#</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col" style="width: 120px;">
+                        <div class="slds-truncate" title="Actions">Actions</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Last Name">Last Name</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Company">Company</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Phone">Phone</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Email">Email</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Status">Status</div>
+                    </th>
+                    <th class="slds-text-title_caps" scope="col">
+                        <div class="slds-truncate" title="Rating">Rating</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={leads} for:item="lead">
+                    <tr key={lead.Id} class="slds-hint-parent">
+                        <td data-label="#">
+                            <div class="slds-truncate">{lead.rowNumber}</div>
+                        </td>
+                        <td data-label="Actions">
+                            <div class="slds-truncate">
+                                <lightning-button 
+                                    label="Edit" 
+                                    variant="base"
+                                    class="slds-text-link_reset"
+                                    data-id={lead.Id}
+                                    onclick={handleEditClick}>
+                                </lightning-button>
+                                <span> | </span>
+                                <lightning-button 
+                                    label="View" 
+                                    variant="base"
+                                    class="slds-text-link_reset"
+                                    data-id={lead.Id}
+                                    onclick={handleViewClick}>
+                                </lightning-button>
+                            </div>
+                        </td>
+                        <td data-label="Last Name">
+                            <div class="slds-truncate" title={lead.LastName}>{lead.LastName}</div>
+                        </td>
+                        <td data-label="Company">
+                            <div class="slds-truncate" title={lead.Company}>{lead.Company}</div>
+                        </td>
+                        <td data-label="Phone">
+                            <div class="slds-truncate" title={lead.Phone}>{lead.Phone}</div>
+                        </td>
+                        <td data-label="Email">
+                            <div class="slds-truncate" title={lead.Email}>{lead.Email}</div>
+                        </td>
+                        <td data-label="Status">
+                            <div class="slds-truncate" title={lead.Status}>{lead.Status}</div>
+                        </td>
+                        <td data-label="Rating">
+                            <div class="slds-truncate" title={lead.Rating}>{lead.Rating}</div>
+                        </td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
     </lightning-card>
+
+    <template if:true={isModalOpen}>
+        <c-create-lead
+            record-id={selectedLeadId}
+            is-view-mode={isViewMode}
+            onclose={handleModalClose}
+            onrefresh={refreshData}>
+        </c-create-lead>
+    </template>
 </template>

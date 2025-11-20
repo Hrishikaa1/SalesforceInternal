@@ -1,75 +1,60 @@
-
-import { LightningElement, wire, track } from 'lwc';
-import getLeads from '@salesforce/apex/AccountDatatableCls.getLeads';
-import CreateEditLeadModal from 'c/createLead';
+import { LightningElement, track, wire } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
+import getLeads from '@salesforce/apex/GuestLeadController.getLeads';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
 
-export default class AccountDatatable extends LightningElement {
+export default class Accountdatatable extends NavigationMixin(LightningElement) {
     @track leads = [];
-    @track error;
-    @track selectedRows = [];
+    @track isModalOpen = false;
+    @track selectedLeadId = null;
+    @track isViewMode = false;
     wiredLeadsResult;
-
-    columns = [
-       /*  { label: 'Lead ID',   fieldName: 'Id',      type: 'text' }, */
-        { label: 'Last Name', fieldName: 'LastName',type: 'text' },
-        { label: 'Company',   fieldName: 'Company', type: 'text' },
-        { label: 'Phone',     fieldName: 'Phone',   type: 'phone'},
-        { label: 'Email',     fieldName: 'Email',   type: 'email'},
-        { label: 'Status',    fieldName: 'Status',  type: 'text' },
-        { label: 'Rating',    fieldName: 'Rating',  type: 'text' }
-    ];
 
     @wire(getLeads)
     wiredLeads(result) {
         this.wiredLeadsResult = result;
         if (result.data) {
-            this.leads = [...result.data];
-            this.error = undefined;
+            this.leads = result.data.map((lead, index) => ({
+                ...lead,
+                rowNumber: index + 1
+            }));
         } else if (result.error) {
-            this.error = result.error.body?.message || 'Unknown error';
-            this.leads = [];
+            this.showToast('Error', 'Failed to load leads', 'error');
         }
     }
 
-    handleRowSelection(event) {
-        this.selectedRows = event.detail.selectedRows;
+    handleEditClick(event) {
+        const leadId = event.target.dataset.id;
+        this.selectedLeadId = leadId;
+        this.isViewMode = false;
+        this.isModalOpen = true;
     }
 
-    async handleCreateLead() {
-        const result = await CreateEditLeadModal.open({ size: 'medium' });
-        if (result === 'refresh') this.refreshData();
+    handleViewClick(event) {
+        const leadId = event.target.dataset.id;
+        this.selectedLeadId = leadId;
+        this.isViewMode = true;
+        this.isModalOpen = true;
     }
 
-    async handleEditLead() {
-        if (!this.selectedRows.length) {
-            this.showToast('Warning','Select one lead','warning');
-            return;
-        }
-        if (this.selectedRows.length > 1) {
-            this.showToast('Warning','Select only one lead','warning');
-            return;
-        }
-        const result = await CreateEditLeadModal.open({
-            size: 'medium',
-            recordId: this.selectedRows[0].Id
-        });
-        if (result === 'refresh') this.refreshData();
+    handleCreateLead() {
+        this.selectedLeadId = null;
+        this.isViewMode = false;
+        this.isModalOpen = true;
+    }
+
+    handleModalClose() {
+        this.isModalOpen = false;
+        this.selectedLeadId = null;
+        this.isViewMode = false;
     }
 
     refreshData() {
-        this.selectedRows = [];
-        return refreshApex(this.wiredLeadsResult)
-            .then(() => this.showToast('Success','Refreshed','success'))
-            .catch(() => this.showToast('Error','Refresh failed','error'));
+        refreshApex(this.wiredLeadsResult);
     }
 
-    showToast(t, m, v) {
-        this.dispatchEvent(new ShowToastEvent({ title:t, message:m, variant:v }));
-    }
-
-    get isEditDisabled() {
-        return this.selectedRows.length !== 1;
+    showToast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
     }
 }

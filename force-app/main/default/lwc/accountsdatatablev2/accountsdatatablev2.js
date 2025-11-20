@@ -7,65 +7,76 @@ import { refreshApex } from '@salesforce/apex';
 export default class Accountsdatatablev2 extends LightningElement {
     @track accounts = [];
     @track error;
-    @track selectedRows = [];
+    @track isLoading = false;
     wiredAccountsResult;
-
-    columns = [
-        { label: 'Name', fieldName: 'Name', type: 'text' },
-        { label: 'Overall Rating', fieldName: 'Overall_Rating__c', type: 'text' },
-        { label: 'Website', fieldName: 'Website', type: 'url', typeAttributes: { target: '_blank' } },
-        { label: 'Fax', fieldName: 'Fax', type: 'phone' },
-        { label: 'Phone', fieldName: 'Phone', type: 'phone' },
-        { label: 'Direct/Indirect', fieldName: 'Direct_Indirect__c', type: 'text' }
-    ];
 
     @wire(getAccounts)
     wiredAccounts(result) {
         this.wiredAccountsResult = result;
+        this.isLoading = true;
+        
         if (result.data) {
-            this.accounts = [...result.data];
+            console.log('Accounts loaded:', result.data);
+            this.accounts = result.data.map((account, index) => ({
+                ...account,
+                rowNumber: index + 1
+            }));
             this.error = undefined;
+            this.isLoading = false;
         } else if (result.error) {
+            console.error('Error loading accounts:', result.error);
             this.accounts = [];
-            this.error = result.error?.body?.message || 'Unknown error';
+            this.error = result.error?.body?.message || 'Unknown error loading accounts';
+            this.isLoading = false;
         }
     }
 
-    handleRowSelection(e) {
-        this.selectedRows = e.detail.selectedRows || [];
+    get hasAccounts() {
+        return this.accounts && this.accounts.length > 0;
+    }
+
+    handleEditClick(event) {
+        const accountId = event.target.dataset.id;
+        this.openModal(accountId, false);
+    }
+
+    handleViewClick(event) {
+        const accountId = event.target.dataset.id;
+        this.openModal(accountId, true);
     }
 
     async handleCreateAccount() {
-        const result = await CreateEditAccountModal.open({ size: 'medium' });
+        const result = await CreateEditAccountModal.open({ 
+            size: 'medium',
+            isViewMode: false
+        });
         if (result === 'refresh') this.refreshData();
     }
 
-    async handleEditAccount() {
-        if (!this.selectedRows.length) {
-            return this.showToast('Warning', 'Select one Account', 'warning');
-        }
-        if (this.selectedRows.length > 1) {
-            return this.showToast('Warning', 'Select only one Account', 'warning');
-        }
+    async openModal(recordId, isViewMode) {
         const result = await CreateEditAccountModal.open({
             size: 'medium',
-            recordId: this.selectedRows[0].Id
+            recordId: recordId,
+            isViewMode: isViewMode
         });
         if (result === 'refresh') this.refreshData();
     }
 
     refreshData() {
-        this.selectedRows = [];
+        this.isLoading = true;
         return refreshApex(this.wiredAccountsResult)
-            .then(() => this.showToast('Success', 'Refreshed', 'success'))
-            .catch(() => this.showToast('Error', 'Refresh failed', 'error'));
+            .then(() => {
+                this.showToast('Success', 'Data refreshed', 'success');
+            })
+            .catch(() => {
+                this.showToast('Error', 'Refresh failed', 'error');
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
     }
 
     showToast(title, message, variant) {
         this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
-    }
-
-    get isEditDisabled() {
-        return this.selectedRows.length !== 1;
     }
 }

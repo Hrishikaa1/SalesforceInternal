@@ -1,0 +1,78 @@
+<template>
+    <c-lwc-custom-loading-indicator is-loading={isLoading} loading-message={loadingMessage}></c-lwc-custom-loading-indicator>
+    <fieldset class="form-group">
+        <legend class="slds-text-heading_medium">Create Business Process</legend>
+        <div class="slds-var-p-around_medium">
+            <div class="slds-grid slds-grid_vertical">
+                <!-- Form Container -->
+                <div class="slds-form slds-form_stacked slds-theme_default">
+                    <div class="slds-grid slds-gutters">
+                        <!-- Process Name -->
+                        <div class="slds-col slds-size_1-of-3">
+                            <lightning-input
+                                class="input-field"
+                                type="text"
+                                variant="label-stacked"
+                                value={processname}
+                                onchange={handleProcessChange}
+                                label="Process Name"
+                                placeholder="Enter process name"
+                                required>
+                            </lightning-input>
+                        </div>
+    
+                        <!-- Status Toggle -->
+                        <div class="slds-col slds-size_1-of-3 slds-var-p-top_large">
+                            <lightning-input 
+                                type="toggle"
+                                label="Status"
+                                name="isActive"
+                                checked={isActive}
+                                onchange={handleActiveChange}
+                                message-toggle-active="Active"
+                                message-toggle-inactive="Inactive"
+                                required>
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Action Buttons Section -->
+                <div class="slds-grid slds-grid_align-center slds-var-m-top_medium">
+                    <button class="skip-button slds-var-m-around_x-small " onclick={handelNext} >Select Process Values</button>
+                </div>
+    
+                <!-- Picklist Selection Modal -->
+                <template if:true={isModalOpen}>
+                    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                            <button class="slds-button slds-button_icon slds-modal__close" onclick={handleBack}>
+                                <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                            </button>
+                            <div class="slds-modal__content slds-p-around_medium">
+                                <label >
+                                    Edit Picklist Values for {fieldName}
+                                </label>
+                                <lightning-dual-listbox
+                                    name="picklist"
+                                    label="Select Picklist Values"
+                                    source-label="Available Values"
+                                    selected-label="Selected Values"
+                                    options={availablePicklistOptions}
+                                    value={selectedPicklistValues}
+                                    onchange={handlePicklistChange}>
+                                </lightning-dual-listbox>
+                            </div>
+
+                            <footer class="slds-modal__footer">
+                                <button onclick={handleBack} class="slds-m-right_x-small cancel-button">Cancel</button>
+                                <button onclick={handleSave} class="save-button">Create Business Process</button>
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </template>
+            </div>
+        </div>
+    </fieldset>
+    </template>

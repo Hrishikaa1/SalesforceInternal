@@ -1,45 +1,32 @@
-import { api, track } from 'lwc';
-import LightningModal from 'lightning/modal';
+import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import getLeadById from '@salesforce/apex/GuestLeadController.getLeadById';
+import getLeadPicklistValues from '@salesforce/apex/GuestLeadController.getLeadPicklistValues';
 import createLead from '@salesforce/apex/GuestLeadController.createLead';
 import updateLead from '@salesforce/apex/GuestLeadController.updateLead';
-import getLeadById from '@salesforce/apex/GuestLeadController.getLeadById';
 
-export default class CreateLead extends LightningModal {
+export default class CreateLead extends LightningElement {
     @api recordId;
-
-    @track leadRecord = {
-        LastName: '',
-        Company: '',
-        Email: '',
-        Phone: '',
-        Status: 'Open - Not Contacted',
-        Title: '',
-        Channel__c: '',
-        Geography__c: '',
-        Direct_Indirect__c: '',
-        Business_Type__c: '',
-        Contact_type__c: '',
-        Rating: ''
-    };
-
+    @api isViewMode = false;
     @track isLoading = false;
-
-    statusOptions = [
-        { label: 'Open - Not Contacted', value: 'Open - Not Contacted' },
-        { label: 'Working - Contacted', value: 'Working - Contacted' },
-        { label: 'Closed - Converted', value: 'Closed - Converted' },
-        { label: 'Closed - Not Converted', value: 'Closed - Not Converted' }
-    ];
-
-    ratingOptions = [
-        { label: 'Hot', value: 'Hot' },
-        { label: 'Warm', value: 'Warm' },
-        { label: 'Cold', value: 'Cold' }
-    ];
+    @track picklistOptions = {};
+    @track leadRecord = {};
 
     connectedCallback() {
+        this.loadPicklistValues();
         if (this.recordId) this.loadLead();
+    }
+
+    async loadPicklistValues() {
+        try {
+            const data = await getLeadPicklistValues();
+            this.picklistOptions = {};
+            Object.keys(data).forEach(field => {
+                this.picklistOptions[field] = data[field].map(val => ({ label: val, value: val }));
+            });
+        } catch {
+            this.showToast('Error', 'Failed to load picklist values', 'error');
+        }
     }
 
     async loadLead() {
@@ -49,7 +36,6 @@ export default class CreateLead extends LightningModal {
             this.leadRecord = { ...data };
         } catch (e) {
             this.showToast('Error', e.body?.message || e.message, 'error');
-            this.close();
         } finally {
             this.isLoading = false;
         }
@@ -57,25 +43,28 @@ export default class CreateLead extends LightningModal {
 
     handleChange(event) {
         const field = event.target.dataset.field;
-        this.leadRecord[field] = event.target.value;
+        this.leadRecord[field] = event.detail.value;
     }
 
     async handleSave() {
-        if (!this.leadRecord.LastName || !this.leadRecord.Company) {
-            this.showToast('Error','Last Name and Company are required','error');
-            return;
+        const required = ['LastName', 'Company', 'Channel__c', 'Geography__c', 'Business_Type__c'];
+        for (const f of required) {
+            if (!this.leadRecord[f]) {
+                this.showToast('Error', 'Please fill all required fields.', 'error');
+                return;
+            }
         }
-
         this.isLoading = true;
         try {
             if (this.recordId) {
                 await updateLead({ leadId: this.recordId, leadData: this.leadRecord });
-                this.showToast('Success','Lead updated','success');
+                this.showToast('Success', 'Lead updated successfully', 'success');
             } else {
                 await createLead({ leadData: this.leadRecord });
-                this.showToast('Success','Lead created','success');
+                this.showToast('Success', 'Lead created successfully', 'success');
             }
-            this.close('refresh');
+            this.dispatchEvent(new CustomEvent('refresh'));
+            this.handleCancel();
         } catch (e) {
             this.showToast('Error', e.body?.message || e.message, 'error');
         } finally {
@@ -84,14 +73,15 @@ export default class CreateLead extends LightningModal {
     }
 
     handleCancel() {
-        this.close();
+        this.dispatchEvent(new CustomEvent('close'));
     }
 
-    showToast(t, m, v) {
-        this.dispatchEvent(new ShowToastEvent({ title:t, message:m, variant:v }));
+    get formTitle() {
+        if (this.isViewMode) return 'View Lead';
+        return this.recordId ? 'Edit Lead' : 'Create Lead';
     }
 
-    get modalTitle() {
-        return this.recordId ? 'Edit Lead' : 'Create New Lead';
+    showToast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
     }
 }

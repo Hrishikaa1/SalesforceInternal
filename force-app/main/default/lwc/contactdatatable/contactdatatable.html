@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="Contact Management">
+    <lightning-card title="Contact Management" icon-name="standard:contact">
         <div slot="actions">
             <lightning-button-group>
                 <lightning-button label="Create New Contact"
@@ -7,14 +7,6 @@
                                   variant="brand"
                                   icon-name="utility:add">
                 </lightning-button>
-
-                <lightning-button label="Edit Contact"
-                                  onclick={handleEditContact}
-                                  variant="neutral"
-                                  icon-name="utility:edit"
-                                  disabled={isEditDisabled}>
-                </lightning-button>
-
                 <lightning-button label="Refresh"
                                   onclick={refreshData}
                                   variant="neutral"
@@ -23,17 +15,14 @@
             </lightning-button-group>
         </div>
 
-        <!-- Datatable -->
-        <template if:true={contacts}>
-            <lightning-datatable key-field="Id"
-                                 data={contacts}
-                                 columns={columns}
-                                 onrowselection={handleRowSelection}
-                                 show-row-number-column>
-            </lightning-datatable>
+        <!-- Loading Spinner -->
+        <template if:true={isLoading}>
+            <div class="slds-p-around_medium slds-text-align_center">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
         </template>
 
-        <!-- Error -->
+        <!-- Error Message -->
         <template if:true={error}>
             <div class="slds-p-around_medium">
                 <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
@@ -43,13 +32,78 @@
             </div>
         </template>
 
-        <!-- Loading -->
-        <template if:false={contacts}>
-            <template if:false={error}>
-                <div class="slds-p-around_medium slds-text-align_center">
-                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-                </div>
-            </template>
+        <!-- Datatable -->
+        <template if:true={hasContacts}>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th class="slds-text-title_caps" scope="col" style="width: 50px;">
+                            <div class="slds-truncate" title="#">#</div>
+                        </th>
+                        <th class="slds-text-title_caps" scope="col" style="width: 120px;">
+                            <div class="slds-truncate" title="Actions">ACTIONS</div>
+                        </th>
+                        <th class="slds-text-title_caps" scope="col">
+                            <div class="slds-truncate" title="Name">NAME</div>
+                        </th>
+                        <th class="slds-text-title_caps" scope="col">
+                            <div class="slds-truncate" title="Phone">PHONE</div>
+                        </th>
+                        <th class="slds-text-title_caps" scope="col">
+                            <div class="slds-truncate" title="Mobile Phone">MOBILE PHONE</div>
+                        </th>
+                        <th class="slds-text-title_caps" scope="col">
+                            <div class="slds-truncate" title="Email">EMAIL</div>
+                        </th>
+                        <th class="slds-text-title_caps" scope="col">
+                            <div class="slds-truncate" title="Contact Type">CONTACT TYPE</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={contacts} for:item="contact">
+                        <tr key={contact.Id} class="slds-hint-parent">
+                            <td data-label="#">
+                                <div class="slds-truncate">{contact.rowNumber}</div>
+                            </td>
+                            <td data-label="Actions">
+                                <div class="slds-truncate">
+                                    <lightning-button 
+                                        label="Edit" 
+                                        variant="base"
+                                        class="slds-text-link_reset"
+                                        data-id={contact.Id}
+                                        onclick={handleEditClick}>
+                                    </lightning-button>
+                                    <span> | </span>
+                                    <lightning-button 
+                                        label="View" 
+                                        variant="base"
+                                        class="slds-text-link_reset"
+                                        data-id={contact.Id}
+                                        onclick={handleViewClick}>
+                                    </lightning-button>
+                                </div>
+                            </td>
+                            <td data-label="Name">
+                                <div class="slds-truncate" title={contact.Name}>{contact.Name}</div>
+                            </td>
+                            <td data-label="Phone">
+                                <div class="slds-truncate" title={contact.Phone}>{contact.Phone}</div>
+                            </td>
+                            <td data-label="Mobile Phone">
+                                <div class="slds-truncate" title={contact.MobilePhone}>{contact.MobilePhone}</div>
+                            </td>
+                            <td data-label="Email">
+                                <div class="slds-truncate" title={contact.Email}>{contact.Email}</div>
+                            </td>
+                            <td data-label="Contact Type">
+                                <div class="slds-truncate" title={contact.Contact_type__c}>{contact.Contact_type__c}</div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </template>
     </lightning-card>
 </template>

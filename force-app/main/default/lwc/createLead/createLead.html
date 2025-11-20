@@ -1,87 +1,231 @@
 <template>
-    <lightning-modal-header label={modalTitle}></lightning-modal-header>
-    <lightning-modal-body>
-        <template if:true={isLoading}>
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-        </template>
- <div class="slds-grid slds-wrap slds-gutters slds-p-around_medium">
-            <!-- Required -->
-            <div class="slds-col slds-size_1-of-1">
-                <h3 class="slds-text-heading_small slds-m-bottom_small">Required Information</h3>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            
+            <!-- HEADER -->
+            <header class="slds-modal__header slds-theme_default">
+                <h2 class="slds-text-heading_medium">{formTitle}</h2>
+            </header>
+
+            <!-- BODY -->
+            <div class="slds-modal__content slds-p-around_medium">
+                <template if:true={isLoading}>
+                    <div class="slds-align_absolute-center slds-p-vertical_medium">
+                        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                    </div>
+                </template>
+
+                <template if:false={isLoading}>
+                    <!-- ========================= BASIC INFORMATION ========================= -->
+                    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                        <h3 class="slds-section-title slds-border_bottom slds-p-bottom_x-small slds-m-bottom_small">
+                            Basic Information
+                        </h3>
+                    </div>
+
+                    <div class="slds-grid slds-wrap slds-gutters_small">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Salutation" 
+                                data-field="Salutation" 
+                                value={leadRecord.Salutation} 
+                                options={picklistOptions.Salutation} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input 
+                                label="First Name" 
+                                data-field="FirstName" 
+                                value={leadRecord.FirstName} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input 
+                                label="Last Name" 
+                                data-field="LastName" 
+                                value={leadRecord.LastName} 
+                                onchange={handleChange} 
+                                required
+                                disabled={isViewMode}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input 
+                                label="Company" 
+                                data-field="Company" 
+                                value={leadRecord.Company} 
+                                onchange={handleChange} 
+                                required
+                                disabled={isViewMode}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input 
+                                label="Email" 
+                                type="email" 
+                                data-field="Email" 
+                                value={leadRecord.Email} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input 
+                                label="Phone" 
+                                type="tel" 
+                                data-field="Phone" 
+                                value={leadRecord.Phone} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input 
+                                label="Title" 
+                                data-field="Title" 
+                                value={leadRecord.Title} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-input>
+                        </div>
+                    </div>
+
+                    <!-- ========================= BUSINESS DETAILS ========================= -->
+                    <div class="slds-col slds-size_1-of-1 slds-m-top_medium slds-m-bottom_small">
+                        <h3 class="slds-section-title slds-border_bottom slds-p-bottom_x-small slds-m-bottom_small">
+                            Business Details
+                        </h3>
+                    </div>
+
+                    <div class="slds-grid slds-wrap slds-gutters_small">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Channel" 
+                                data-field="Channel__c" 
+                                value={leadRecord.Channel__c} 
+                                options={picklistOptions.Channel__c} 
+                                onchange={handleChange} 
+                                required
+                                disabled={isViewMode}>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Geography" 
+                                data-field="Geography__c" 
+                                value={leadRecord.Geography__c} 
+                                options={picklistOptions.Geography__c} 
+                                onchange={handleChange} 
+                                required
+                                disabled={isViewMode}>
+                            </lightning-combobox>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Business Type" 
+                                data-field="Business_Type__c" 
+                                value={leadRecord.Business_Type__c} 
+                                options={picklistOptions.Business_Type__c} 
+                                onchange={handleChange} 
+                                required
+                                disabled={isViewMode}>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Lead Source" 
+                                data-field="LeadSource" 
+                                value={leadRecord.LeadSource} 
+                                options={picklistOptions.LeadSource} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-combobox>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Direct/Indirect" 
+                                data-field="Direct_Indirect__c" 
+                                value={leadRecord.Direct_Indirect__c} 
+                                options={picklistOptions.Direct_Indirect__c} 
+                                onchange={handleChange}
+                                disabled={isViewMode}
+                                required>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Contact Type" 
+                                data-field="Contact_type__c" 
+                                value={leadRecord.Contact_type__c} 
+                                options={picklistOptions.Contact_type__c} 
+                                onchange={handleChange}
+                                disabled={isViewMode}
+                                required>
+                            </lightning-combobox>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Submitted By" 
+                                data-field="Submitted_by__c" 
+                                value={leadRecord.Submitted_by__c} 
+                                options={picklistOptions.Submitted_by__c} 
+                                onchange={handleChange}
+                                disabled={isViewMode}
+                                required>
+                            </lightning-combobox>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Status" 
+                                data-field="Status" 
+                                value={leadRecord.Status} 
+                                options={picklistOptions.Status} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-combobox>
+                        </div>
+                        
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox 
+                                label="Rating" 
+                                data-field="Rating" 
+                                value={leadRecord.Rating} 
+                                options={picklistOptions.Rating} 
+                                onchange={handleChange}
+                                disabled={isViewMode}>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                </template>
             </div>
 
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Last Name" data-field="LastName"
-                                 value={leadRecord.LastName} onchange={handleChange} required></lightning-input>
-            </div>
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Company" data-field="Company"
-                                 value={leadRecord.Company} onchange={handleChange} required></lightning-input>
-            </div>
+            <!-- FOOTER -->
+            <template if:false={isViewMode}>
+                <footer class="slds-modal__footer slds-text-align_right">
+                    <lightning-button label="Cancel" variant="neutral" onclick={handleCancel}></lightning-button>
+                    <lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isLoading}></lightning-button>
+                </footer>
+            </template>
 
-            <!-- Contact -->
-            <div class="slds-col slds-size_1-of-1 slds-m-top_medium">
-                <h3 class="slds-text-heading_small slds-m-bottom_small">Contact Information</h3>
-            </div>
-
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input type="email" label="Email" data-field="Email"
-                                 value={leadRecord.Email} onchange={handleChange}></lightning-input>
-            </div>
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input type="tel" label="Phone" data-field="Phone"
-                                 value={leadRecord.Phone} onchange={handleChange}></lightning-input>
-            </div>
-
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Title" data-field="Title"
-                                 value={leadRecord.Title} onchange={handleChange}></lightning-input>
-            </div>
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-combobox label="Status" data-field="Status"
-                                    value={leadRecord.Status} options={statusOptions}
-                                    onchange={handleChange}></lightning-combobox>
-            </div>
-
-            <!-- Business -->
-            <div class="slds-col slds-size_1-of-1 slds-m-top_medium">
-                <h3 class="slds-text-heading_small slds-m-bottom_small">Business Details</h3>
-            </div>
-
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Channel Company" data-field="Channel__c"
-                                 value={leadRecord.Channel__c} onchange={handleChange}></lightning-input>
-            </div>
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Geography" data-field="Geography__c"
-                                 value={leadRecord.Geography__c} onchange={handleChange}></lightning-input>
-            </div>
-
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Direct / Indirect" data-field="Direct_Indirect__c"
-                                 value={leadRecord.Direct_Indirect__c} onchange={handleChange}></lightning-input>
-            </div>
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Business Type" data-field="Business_Type__c"
-                                 value={leadRecord.Business_Type__c} onchange={handleChange}></lightning-input>
-            </div>
-
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-input label="Contact Type" data-field="Contact_type__c"
-                                 value={leadRecord.Contact_type__c} onchange={handleChange}></lightning-input>
-            </div>
-            <div class="slds-col slds-size_1-of-2">
-                <lightning-combobox label="Rating" data-field="Rating"
-                                    value={leadRecord.Rating} options={ratingOptions}
-                                    onchange={handleChange}></lightning-combobox>
-            </div>
+            <!-- View Mode Footer -->
+            <template if:true={isViewMode}>
+                <footer class="slds-modal__footer slds-text-align_right">
+                    <lightning-button label="Close" variant="brand" onclick={handleCancel}></lightning-button>
+                </footer>
+            </template>
         </div>
-    </lightning-modal-body>
+    </section>
 
-    <lightning-modal-footer>
-        <lightning-button variant="neutral" label="Cancel"
-                          onclick={handleCancel} disabled={isLoading}></lightning-button>
-        <lightning-button variant="brand" label="Save"
-                          onclick={handleSave} disabled={isLoading}></lightning-button>
-    </lightning-modal-footer>
+    <div class="slds-backdrop slds-backdrop_open"></div>
 </template>

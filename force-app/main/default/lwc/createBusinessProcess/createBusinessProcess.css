@@ -1,0 +1,57 @@
+.input-field {
+    --slds-c-input-radius-border: 4px;
+    max-width: 100%;
+}
+/* Fieldset Styling */
+fieldset {
+    border: 1px solid #d8dde6;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+legend {
+    margin-bottom: 0.5rem;
+    font: normal normal 600 18px/24px Montserrat;
+    letter-spacing: 0px;
+    color: #2754A0;
+    opacity: 1;
+}
+/* button styling */
+.cancel-button {
+    padding: 8px 16px;
+    background-color: #ffffff;
+    border: 1px solid #6600cc;
+    border-radius: 4px;
+    color: #6600cc;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.save-button {
+    padding: 8px 16px;
+    background-color: #6600cc;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+.skip-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #eb724f;
+    border: 1px solid #eb724f;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+lightning-input.input-field {
+    --slds-c-input-spacing-horizontal-start: 0.5rem;
+    --slds-c-input-spacing-horizontal-end: 0.5rem;
+}
